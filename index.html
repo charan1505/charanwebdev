@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sai Charan Kolipaka — Frontend Developer crafting fast, accessible, beautifully animated web experiences.">
+<meta name="theme-color" content="#060b18">
+<title>Sai Charan Kolipaka — Frontend Developer</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@300,400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   SEASON PALETTES — WCAG AA compliant contrast
+═══════════════════════════════════════════════════ */
+body.winter {
+  --bg0:#04080f; --bg1:#070d1c; --bg2:#0c1428; --bg3:#111e38;
+  --a1:#7eb8f7; --a2:#b8d8ff; --a3:#3d7fd4;
+  --text:#e4eeff; --text2:#8ba6cc;
+  --border:rgba(126,184,247,0.14);
+  --glow:0 0 28px rgba(126,184,247,0.22);
+  --glow2:0 0 48px rgba(126,184,247,0.12);
+}
+body.rain {
+  --bg0:#030a06; --bg1:#050e09; --bg2:#08160d; --bg3:#0d2016;
+  --a1:#4fd98a; --a2:#9eedc4; --a3:#1ab86a;
+  --text:#d8f5e6; --text2:#5a9e7a;
+  --border:rgba(79,217,138,0.13);
+  --glow:0 0 28px rgba(79,217,138,0.22);
+  --glow2:0 0 48px rgba(79,217,138,0.1);
+}
+body.summer {
+  --bg0:#0a0500; --bg1:#110800; --bg2:#1a0d00; --bg3:#261500;
+  --a1:#f5a623; --a2:#ffd97a; --a3:#d4820a;
+  --text:#fff4dc; --text2:#9a7035;
+  --border:rgba(245,166,35,0.14);
+  --glow:0 0 28px rgba(245,166,35,0.24);
+  --glow2:0 0 48px rgba(245,166,35,0.1);
+}
+body.autumn {
+  --bg0:#080400; --bg1:#0f0700; --bg2:#170c00; --bg3:#221200;
+  --a1:#e8834a; --a2:#f9c49a; --a3:#c05c20;
+  --text:#ffecd8; --text2:#8a5838;
+  --border:rgba(232,131,74,0.14);
+  --glow:0 0 28px rgba(232,131,74,0.22);
+  --glow2:0 0 48px rgba(232,131,74,0.1);
+}
+
+/* ═══════════════════════════════
+   RESET & BASE
+═══════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--bg0);color:var(--text);
+  font-family:'Satoshi',system-ui,sans-serif;
+  overflow-x:hidden;
+  transition:background 1.2s,color 1.2s;
+  min-height:100vh;
+}
+img,svg{display:block;max-width:100%}
+
+/* Skip link */
+.skip-link{
+  position:absolute;top:-100%;left:1rem;
+  padding:0.5rem 1.2rem;background:var(--a1);color:var(--bg0);
+  font-weight:700;font-size:0.875rem;border-radius:0 0 6px 6px;
+  text-decoration:none;z-index:10000;transition:top 0.2s;
+}
+.skip-link:focus{top:0}
+
+/* Canvas + grid overlay */
+#weather-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;will-change:transform}
+body::before{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:64px 64px;
+}
+
+/* ═══════════════════════════════
+   SEASON SWITCHER
+═══════════════════════════════ */
+#season-switcher{
+  position:fixed;right:0;top:50%;transform:translateY(-50%);
+  z-index:300;display:flex;flex-direction:column;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-right:none;
+  border-radius:12px 0 0 12px;overflow:hidden;transition:border-color 1.2s;
+}
+.sw-label{
+  font-family:'Fira Code',monospace;font-size:0.6rem;
+  color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;
+  text-align:center;padding:0.6rem 0.5rem 0.3rem;transition:color 1.2s;
+}
+.season-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:0.75rem 0.85rem;background:transparent;border:none;cursor:pointer;
+  transition:background 0.2s;position:relative;outline:none;
+}
+.season-btn:focus-visible{outline:2px solid var(--a1);outline-offset:-2px}
+.season-btn:hover{background:rgba(255,255,255,0.06)}
+.season-btn.active{background:rgba(255,255,255,0.1)}
+.season-btn.active::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--a1);transition:background 1.2s;
+}
+.season-btn .s-icon{font-size:1.3rem;line-height:1}
+.season-btn .s-name{font-family:'Fira Code',monospace;font-size:0.52rem;color:var(--text2);letter-spacing:0.06em;transition:color 1.2s}
+.season-btn.active .s-name{color:var(--a1)}
+
+/* Auto badge */
+#auto-badge{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(8px);
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(12px);
+  border:1px solid var(--border);color:var(--a1);
+  font-family:'Fira Code',monospace;font-size:0.72rem;letter-spacing:0.1em;
+  padding:0.4rem 1.2rem;border-radius:100px;z-index:300;
+  pointer-events:none;opacity:0;
+  transition:opacity 0.4s,transform 0.4s,color 1.2s,border-color 1.2s;
+  white-space:nowrap;
+}
+#auto-badge.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══════════════════════════════
+   WEATHER BADGE (floating)
+═══════════════════════════════ */
+#weather-badge{
+  position:fixed;top:1.1rem;left:50%;transform:translateX(-50%);
+  z-index:201;display:flex;align-items:center;gap:0.5rem;
+  padding:0.42rem 1rem 0.42rem 0.75rem;
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:100px;
+  font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--text);
+  white-space:nowrap;transition:border-color 1.2s,background 1.2s,opacity 0.4s;
+  cursor:default;user-select:none;
+}
+#weather-badge .wb-pulse{width:6px;height:6px;border-radius:50%;background:var(--a1);flex-shrink:0;animation:pulse-dot 2s infinite;transition:background 1.2s}
+#weather-badge .wb-icon{font-size:0.95rem;line-height:1}
+#weather-badge .wb-temp{font-weight:500;color:var(--a1);transition:color 1.2s}
+#weather-badge .wb-sep{color:var(--text2);opacity:0.4;margin:0 0.1rem}
+#weather-badge .wb-city{color:var(--text2);font-size:0.65rem;letter-spacing:0.06em;transition:color 1.2s}
+#weather-badge.loading{opacity:0.5}
+
+/* ═══════════════════════════════
+   NAVIGATION
+═══════════════════════════════ */
+#main-nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3.5rem;
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  transition:border-color 1.2s,padding 0.3s;
+}
+.nav-logo{
+  font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:800;
+  color:var(--text);text-decoration:none;letter-spacing:-0.03em;transition:color 1.2s;
+}
+.nav-logo mark{background:none;color:var(--a1);transition:color 1.2s}
+nav ul{display:flex;gap:2.25rem;list-style:none}
+nav ul a{
+  font-family:'Fira Code',monospace;font-size:0.75rem;color:var(--text2);
+  text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;
+  transition:color 0.2s;position:relative;padding-bottom:3px;
+}
+nav ul a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:1px;
+  background:var(--a1);transition:width 0.25s,background 1.2s;
+}
+nav ul a:hover,nav ul a[aria-current="page"]{color:var(--a1)}
+nav ul a:hover::after,nav ul a[aria-current="page"]::after{width:100%}
+nav ul a:focus-visible{outline:2px solid var(--a1);outline-offset:4px;border-radius:2px}
+.nav-cta{
+  padding:0.5rem 1.3rem;background:transparent;border:1px solid var(--a1);
+  color:var(--a1)!important;border-radius:3px;font-weight:500;
+  transition:background 0.2s,color 0.2s,border-color 1.2s!important;
+}
+.nav-cta:hover{background:var(--a1);color:var(--bg0)!important}
+
+/* Hamburger */
+#nav-hamburger{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  gap:5px;width:40px;height:40px;background:transparent;
+  border:1px solid var(--border);border-radius:6px;cursor:pointer;
+  padding:0;transition:border-color 0.2s,background 0.2s;flex-shrink:0;z-index:210;
+}
+#nav-hamburger:hover{border-color:var(--a1);background:rgba(255,255,255,0.05)}
+#nav-hamburger:focus-visible{outline:2px solid var(--a1);outline-offset:3px}
+#nav-hamburger .bar{
+  display:block;width:20px;height:2px;background:var(--text);border-radius:2px;
+  transition:transform 0.3s,opacity 0.3s,background 1.2s;
+}
+#nav-hamburger.open .bar:nth-child(1){transform:translateY(7px) rotate(45deg)}
+#nav-hamburger.open .bar:nth-child(2){opacity:0;transform:scaleX(0)}
+#nav-hamburger.open .bar:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* Mobile Drawer */
+#mobile-drawer{
+  display:none;position:fixed;top:0;left:0;right:0;z-index:199;
+  background:rgba(0,0,0,0.95);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  padding:5.5rem 2rem 2.5rem;flex-direction:column;gap:0;
+  transform:translateY(-110%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1),border-color 1.2s;
+}
+#mobile-drawer.open{transform:translateY(0)}
+#mobile-drawer li{list-style:none;border-bottom:1px solid var(--border)}
+#mobile-drawer li:first-child{border-top:1px solid var(--border)}
+#mobile-drawer a{
+  display:block;padding:1rem 0.25rem;
+  font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;
+  color:var(--text);text-decoration:none;letter-spacing:-0.02em;
+  transition:color 0.2s,padding-left 0.2s;
+}
+#mobile-drawer a:hover,#mobile-drawer a[aria-current="page"]{color:var(--a1);padding-left:0.5rem}
+#mobile-drawer a:focus-visible{outline:2px solid var(--a1);outline-offset:3px;border-radius:2px}
+#mobile-drawer .mob-cta{
+  margin-top:1.5rem;display:inline-flex;align-items:center;justify-content:center;
+  gap:0.5rem;padding:0.9rem 2rem;background:var(--a1);color:var(--bg0);
+  font-family:'Satoshi',sans-serif;font-weight:700;font-size:0.95rem;
+  border-radius:4px;text-decoration:none;transition:opacity 0.2s,background 1.2s,color 1.2s;border:none;
+}
+#mobile-drawer .mob-cta:hover{opacity:0.88}
+#drawer-overlay{display:none;position:fixed;inset:0;z-index:198;background:transparent}
+#drawer-overlay.open{display:block}
+
+/* ═══════════════════════════════
+   HERO
+═══════════════════════════════ */
+#hero{
+  min-height:100vh;display:grid;grid-template-columns:1fr auto;
+  align-items:center;padding:7rem 3.5rem 4rem;
+  position:relative;z-index:2;gap:3rem;
+}
+.hero-left{max-width:680px;width:100%}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:2rem;
+  opacity:0;transform:translateY(16px);animation:fadeUp 0.7s 0.1s forwards;
+}
+.hero-kicker-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--a1);
+  box-shadow:0 0 10px var(--a1);animation:pulse-dot 2s infinite;
+  transition:background 1.2s,box-shadow 1.2s;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+.hero-kicker span{
+  font-family:'Fira Code',monospace;font-size:0.75rem;color:var(--a1);
+  letter-spacing:0.14em;text-transform:uppercase;transition:color 1.2s;
+}
+.hero-name{
+  font-family:'Clash Display',sans-serif;
+  font-size:clamp(2.4rem,6vw,5.6rem);
+  font-weight:800;line-height:1.03;letter-spacing:-0.03em;
+  margin-bottom:0.5rem;opacity:0;animation:fadeUp 0.7s 0.2s forwards;
+}
+.hero-name-accent{
+  display:block;
+  background:linear-gradient(95deg,var(--a1) 0%,var(--a2) 55%,var(--a1) 100%);
+  background-size:200% auto;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 4s linear infinite,fadeUp 0.7s 0.3s both;
+}
+@keyframes shimmer{to{background-position:200% center}}
+.hero-role-wrap{
+  font-family:'Fira Code',monospace;font-size:clamp(0.85rem,1.8vw,1.1rem);
+  color:var(--text2);margin-bottom:1.5rem;min-height:1.8rem;
+  opacity:0;animation:fadeUp 0.7s 0.4s forwards;transition:color 1.2s;
+}
+.typed-text{color:var(--text);transition:color 1.2s}
+.type-cursor{
+  display:inline-block;width:2px;height:1.1em;background:var(--a1);
+  margin-left:2px;vertical-align:middle;animation:blink 1s step-end infinite;transition:background 1.2s;
+}
+@keyframes blink{50%{opacity:0}}
+.hero-desc{
+  font-size:clamp(0.9rem,1.5vw,1.05rem);color:var(--text2);line-height:1.8;
+  max-width:500px;margin-bottom:2.5rem;
+  opacity:0;animation:fadeUp 0.7s 0.5s forwards;transition:color 1.2s;
+}
+.hero-desc strong{color:var(--text);font-weight:500}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.7s 0.65s forwards}
+
+/* Hero weather icon */
+.hero-weather{
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+  opacity:0;animation:fadeRight 0.8s 0.7s forwards;
+}
+@keyframes fadeRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+#weather-icon-canvas{width:160px;height:160px;filter:drop-shadow(0 0 24px var(--a1));transition:filter 1.2s}
+.weather-label{
+  font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text2);
+  letter-spacing:0.12em;text-transform:uppercase;text-align:center;transition:color 1.2s;
+}
+.live-weather{
+  background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:12px;
+  padding:1rem 1.25rem;display:flex;flex-direction:column;align-items:center;gap:0.3rem;
+  min-width:150px;backdrop-filter:blur(12px);transition:border-color 1.2s,background 1.2s;
+  position:relative;overflow:hidden;width:100%;text-align:center;
+}
+.live-weather::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--a1),transparent);transition:background 1.2s;
+}
+.lw-location{
+  font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--text2);
+  letter-spacing:0.14em;text-transform:uppercase;display:flex;align-items:center;gap:0.35rem;transition:color 1.2s;
+}
+.lw-location::before{content:'📍';font-size:0.65rem}
+.lw-temp-row{display:flex;align-items:baseline;gap:0.25rem;line-height:1}
+.lw-temp{
+  font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;
+  color:var(--a1);letter-spacing:-0.04em;transition:color 1.2s;
+}
+.lw-unit{font-family:'Fira Code',monospace;font-size:1rem;color:var(--text2);transition:color 1.2s}
+.lw-desc{font-size:0.78rem;color:var(--text2);font-weight:500;transition:color 1.2s}
+.lw-meta{
+  display:flex;gap:0.75rem;margin-top:0.2rem;
+  font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--text2);opacity:0.75;flex-wrap:wrap;justify-content:center;transition:color 1.2s;
+}
+.lw-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--a1);
+  display:inline-block;margin-right:3px;animation:pulse-dot 2s infinite;transition:background 1.2s;
+}
+.lw-loading{font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--text2);letter-spacing:0.06em;animation:blink 1s step-end infinite}
+
+/* Scroll hint */
+.scroll-hint{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  opacity:0;animation:fadeUp 0.7s 1.2s forwards;
+}
+.scroll-hint span{font-family:'Fira Code',monospace;font-size:0.62rem;color:var(--text2);letter-spacing:0.14em;text-transform:uppercase;transition:color 1.2s}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--a1),transparent);animation:scrollLine 1.8s ease-in-out infinite;transition:background 1.2s}
+@keyframes scrollLine{0%,100%{opacity:0.3;transform:scaleY(1) translateY(0)}50%{opacity:1;transform:scaleY(1.1) translateY(4px)}}
+
+/* ═══════════════════════════════
+   BUTTONS
+═══════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.85rem 1.9rem;font-family:'Satoshi',sans-serif;font-weight:600;
+  font-size:0.9rem;letter-spacing:0.02em;text-decoration:none;
+  border-radius:4px;border:none;cursor:pointer;
+  transition:transform 0.18s,box-shadow 0.18s,background 1.2s,color 1.2s,border-color 1.2s;
+  position:relative;overflow:hidden;
+}
+.btn:focus-visible{outline:2px solid var(--a2);outline-offset:3px}
+.btn-solid{background:var(--a1);color:var(--bg0)}
+.btn-solid:hover{transform:translateY(-2px);box-shadow:var(--glow)}
+.btn-outline{background:transparent;color:var(--a1);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--a1);background:rgba(255,255,255,0.04);transform:translateY(-2px);box-shadow:var(--glow)}
+.btn-icon{font-size:0.95rem}
+
+/* WhatsApp & Call */
+.contact-quick{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.btn-whatsapp{
+  display:inline-flex;align-items:center;gap:0.55rem;padding:0.85rem 1.75rem;
+  background:#25D366;color:#fff;font-family:'Satoshi',sans-serif;font-weight:700;
+  font-size:0.92rem;text-decoration:none;border-radius:4px;border:none;cursor:pointer;
+  transition:transform 0.18s,box-shadow 0.18s,filter 0.18s;
+}
+.btn-whatsapp:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,211,102,0.35);filter:brightness(1.08)}
+.btn-whatsapp:focus-visible{outline:2px solid #25D366;outline-offset:3px}
+.btn-call{
+  display:inline-flex;align-items:center;gap:0.55rem;padding:0.85rem 1.75rem;
+  background:transparent;color:var(--a1);font-family:'Satoshi',sans-serif;font-weight:700;
+  font-size:0.92rem;text-decoration:none;border-radius:4px;border:1px solid var(--a1);cursor:pointer;
+  transition:background 0.18s,transform 0.18s,box-shadow 0.18s,border-color 1.2s,color 1.2s;
+}
+.btn-call:hover{background:var(--a1);color:var(--bg0);transform:translateY(-2px);box-shadow:var(--glow)}
+.btn-call:focus-visible{outline:2px solid var(--a1);outline-offset:3px}
+.btn-icon-svg{width:18px;height:18px;flex-shrink:0;fill:currentColor}
+
+/* Floating FABs */
+#fab-group{
+  position:fixed;bottom:2rem;left:2rem;z-index:300;
+  display:flex;flex-direction:column;align-items:flex-start;gap:0.75rem;
+}
+.fab{
+  display:flex;align-items:center;gap:0;padding:0;border:none;cursor:pointer;
+  text-decoration:none;border-radius:100px;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  transition:transform 0.2s,box-shadow 0.2s,max-width 0.35s ease;
+  max-width:52px;white-space:nowrap;
+}
+.fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:200px}
+.fab:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.fab-icon{
+  width:52px;height:52px;display:flex;align-items:center;
+  justify-content:center;font-size:1.35rem;flex-shrink:0;
+}
+.fab-label{
+  font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:500;
+  letter-spacing:0.04em;padding-right:1.1rem;opacity:0;
+  transition:opacity 0.2s 0.1s;color:#fff;
+}
+.fab:hover .fab-label{opacity:1}
+.fab-wa{background:#25D366}
+.fab-call{background:var(--a1);color:var(--bg0);transition:background 1.2s}
+.fab-call .fab-label{color:var(--bg0);transition:opacity 0.2s 0.1s,color 1.2s}
+
+/* ═══════════════════════════════
+   MARQUEE STRIP
+═══════════════════════════════ */
+#stack-strip{
+  position:relative;z-index:2;padding:1.25rem 0;overflow:hidden;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  transition:border-color 1.2s;background:rgba(0,0,0,0.25);
+}
+#stack-strip::before,#stack-strip::after{
+  content:'';position:absolute;top:0;bottom:0;width:80px;z-index:1;pointer-events:none;
+}
+#stack-strip::before{left:0;background:linear-gradient(to right,var(--bg0),transparent);transition:background 1.2s}
+#stack-strip::after{right:0;background:linear-gradient(to left,var(--bg0),transparent);transition:background 1.2s}
+.marquee-track{display:flex;user-select:none}
+.marquee-row{display:flex;gap:2rem;animation:scroll-left 28s linear infinite;flex-shrink:0;will-change:transform}
+@keyframes scroll-left{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tech-chip{
+  display:flex;align-items:center;gap:0.45rem;padding:0.3rem 0.9rem;
+  border:1px solid var(--border);border-radius:100px;
+  font-family:'Fira Code',monospace;font-size:0.75rem;color:var(--text2);
+  white-space:nowrap;transition:color 0.2s,border-color 0.2s,background 1.2s;
+  background:rgba(255,255,255,0.02);
+}
+.tech-chip:hover{color:var(--a1);border-color:var(--a1);background:rgba(255,255,255,0.05)}
+.tech-dot{width:5px;height:5px;border-radius:50%;background:var(--a1);opacity:0.6;transition:background 1.2s}
+
+/* ═══════════════════════════════
+   SECTIONS (shared)
+═══════════════════════════════ */
+.section-wrap{position:relative;z-index:2;padding:6rem 3.5rem}
+.section-wrap.alt-bg{background:rgba(255,255,255,0.015)}
+.section-tag{
+  font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--a1);
+  letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.75rem;
+  display:flex;align-items:center;gap:0.7rem;transition:color 1.2s;
+}
+.section-tag::before{content:'';display:block;width:24px;height:1px;background:var(--a1);transition:background 1.2s}
+.section-heading{
+  font-family:'Clash Display',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);
+  font-weight:800;letter-spacing:-0.035em;line-height:1.1;margin-bottom:1rem;
+}
+.section-heading mark{background:none;color:var(--a1);transition:color 1.2s}
+.section-sub{color:var(--text2);font-size:1rem;line-height:1.75;max-width:520px;transition:color 1.2s}
+
+/* ═══════════════════════════════
+   ABOUT
+═══════════════════════════════ */
+#about{display:grid;grid-template-columns:1fr 1.2fr;gap:4rem;align-items:start}
+.about-visual{position:relative}
+.about-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:2.25rem 2rem;position:relative;overflow:hidden;transition:background 1.2s,border-color 1.2s;
+}
+.about-card::before{
+  content:'';position:absolute;inset:-1px;border-radius:12px;padding:1px;
+  background:linear-gradient(135deg,var(--a1),transparent 60%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0.5;transition:background 1.2s;
+}
+.about-avatar{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--a3),var(--a1));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin-bottom:1.25rem;transition:background 1.2s;
+}
+.about-card h3{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:0.2rem}
+.about-card .role-label{font-family:'Fira Code',monospace;font-size:0.72rem;color:var(--a1);letter-spacing:0.08em;margin-bottom:1.1rem;transition:color 1.2s}
+.about-card p{font-size:0.88rem;color:var(--text2);line-height:1.75;transition:color 1.2s}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.65rem;margin-top:1.4rem}
+.stat-item{
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:0.85rem 0.6rem;text-align:center;transition:background 1.2s,border-color 1.2s;
+}
+.stat-item .sv{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:800;color:var(--a1);display:block;transition:color 1.2s}
+.stat-item .sl{font-size:0.65rem;color:var(--text2);letter-spacing:0.04em;transition:color 1.2s}
+.about-text-block{padding-top:0.5rem}
+.about-text-block .section-tag{margin-bottom:1rem}
+.about-text-block .section-heading{margin-bottom:1.25rem}
+.about-text-block p{color:var(--text2);font-size:0.95rem;line-height:1.8;margin-bottom:1rem;transition:color 1.2s}
+.about-text-block p strong{color:var(--text);font-weight:500}
+.about-chips{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem}
+.about-chip{
+  padding:0.3rem 0.9rem;background:var(--bg3);border:1px solid var(--border);
+  border-radius:100px;font-size:0.78rem;color:var(--text2);font-family:'Fira Code',monospace;
+  transition:background 1.2s,border-color 1.2s,color 1.2s;
+}
+
+/* ═══════════════════════════════
+   SKILLS
+═══════════════════════════════ */
+.skills-header{text-align:center;margin-bottom:3.5rem}
+.skills-header .section-tag{justify-content:center}
+.skills-header .section-tag::before{display:none}
+.skills-header .section-sub{margin:0 auto}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;max-width:1100px;margin:0 auto}
+.skill-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:1.75rem;transition:background 1.2s,border-color 0.25s,transform 0.22s,box-shadow 0.22s;
+  position:relative;overflow:hidden;
+}
+.skill-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--a1),var(--a2));
+  transform:scaleX(0);transform-origin:left;transition:transform 0.35s,background 1.2s;
+}
+.skill-card:hover{border-color:var(--a1);transform:translateY(-4px);box-shadow:var(--glow2)}
+.skill-card:hover::after{transform:scaleX(1)}
+.skill-card-icon{font-size:1.75rem;margin-bottom:1rem;line-height:1;display:block}
+.skill-card-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1.4rem}
+.skill-row{margin-bottom:0.75rem}
+.skill-meta{display:flex;justify-content:space-between;font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--text2);margin-bottom:0.3rem;transition:color 1.2s}
+.skill-track{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;transition:background 1.2s}
+.skill-fill{height:100%;background:linear-gradient(90deg,var(--a3),var(--a1));border-radius:2px;width:0;transition:width 1.1s cubic-bezier(0.4,0,0.2,1),background 1.2s}
+
+/* ═══════════════════════════════
+   PROJECTS
+═══════════════════════════════ */
+.projects-header{margin-bottom:3rem}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.project-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;transition:background 1.2s,border-color 0.25s,transform 0.22s,box-shadow 0.22s;
+  display:flex;flex-direction:column;
+}
+.project-card:hover{border-color:var(--a1);transform:translateY(-5px);box-shadow:var(--glow2)}
+.project-thumb{
+  height:172px;position:relative;display:flex;align-items:center;
+  justify-content:center;font-size:3.5rem;overflow:hidden;transition:background 1.2s;
+}
+.project-thumb::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,var(--bg2));pointer-events:none;transition:background 1.2s;
+}
+.project-links{
+  position:absolute;inset:0;z-index:2;display:flex;align-items:center;
+  justify-content:center;gap:0.75rem;opacity:0;
+  background:rgba(0,0,0,0.5);transition:opacity 0.25s;
+}
+.project-card:hover .project-links{opacity:1}
+.project-links a{
+  padding:0.45rem 1rem;border:1px solid var(--a1);color:var(--a1);
+  text-decoration:none;font-family:'Fira Code',monospace;font-size:0.73rem;
+  border-radius:4px;transition:background 0.18s,color 0.18s,border-color 1.2s;
+}
+.project-links a:hover{background:var(--a1);color:var(--bg0)}
+.project-links a:focus-visible{outline:2px solid var(--a2);outline-offset:2px}
+.project-body{padding:1.5rem;flex:1;display:flex;flex-direction:column}
+.project-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.85rem}
+.ptag{
+  font-family:'Fira Code',monospace;font-size:0.64rem;color:var(--a1);
+  border:1px solid var(--border);border-radius:100px;padding:0.15rem 0.6rem;
+  letter-spacing:0.04em;transition:color 1.2s,border-color 1.2s;
+}
+.project-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:0.6rem}
+.project-desc{color:var(--text2);font-size:0.875rem;line-height:1.72;flex:1;transition:color 1.2s}
+
+/* ═══════════════════════════════
+   CONTACT FORM
+═══════════════════════════════ */
+#contact{text-align:center}
+.contact-inner{max-width:600px;margin:0 auto}
+.contact-inner .section-tag{justify-content:center}
+.contact-inner .section-tag::before{display:none}
+.contact-inner .section-heading{font-size:clamp(2rem,4vw,3.2rem);margin-bottom:1.1rem}
+.contact-inner .section-sub{max-width:100%;margin-bottom:2.5rem}
+.contact-actions{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:2rem}
+.social-row{display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-top:2rem}
+.social-link{
+  display:inline-flex;align-items:center;gap:0.45rem;padding:0.5rem 1.1rem;
+  border:1px solid var(--border);border-radius:100px;color:var(--text2);
+  text-decoration:none;font-family:'Fira Code',monospace;font-size:0.73rem;
+  transition:all 0.2s,border-color 1.2s;
+}
+.social-link:hover{border-color:var(--a1);color:var(--a1);background:rgba(255,255,255,0.04);transform:translateY(-2px)}
+.social-link:focus-visible{outline:2px solid var(--a1);outline-offset:3px;border-radius:100px}
+.contact-form{
+  text-align:left;background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:2rem;margin:0 auto 2rem;transition:background 1.2s,border-color 1.2s;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-field{margin-bottom:1.1rem;display:flex;flex-direction:column;gap:0.4rem}
+.form-field label{font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;transition:color 1.2s}
+.form-field label .req{color:var(--a1);margin-left:2px;transition:color 1.2s}
+.form-field input,.form-field select{
+  width:100%;padding:0.7rem 0.9rem;background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);font-family:'Satoshi',system-ui,sans-serif;font-size:0.92rem;
+  transition:border-color 0.2s,background 1.2s,box-shadow 0.2s;appearance:none;-webkit-appearance:none;
+}
+.form-field input::placeholder{color:var(--text2);opacity:0.65}
+.form-field input:hover,.form-field select:hover{border-color:rgba(255,255,255,0.25)}
+.form-field input:focus,.form-field select:focus{outline:none;border-color:var(--a1);box-shadow:0 0 0 3px rgba(255,255,255,0.06),var(--glow)}
+.form-field .field-error{font-family:'Fira Code',monospace;font-size:0.68rem;color:#e8736a;min-height:1em;display:none}
+.form-field.has-error .field-error{display:block}
+.form-field.has-error input,.form-field.has-error select{border-color:#e8736a}
+.hp-field{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.form-submit{width:100%;justify-content:center;margin-top:0.25rem}
+.form-status{margin-top:1rem;font-family:'Fira Code',monospace;font-size:0.8rem;text-align:center;min-height:1.2em;color:var(--a1);transition:color 1.2s}
+
+/* ═══════════════════════════════
+   FOOTER
+═══════════════════════════════ */
+footer{
+  position:relative;z-index:2;padding:1.5rem 3.5rem;
+  border-top:1px solid var(--border);display:flex;align-items:center;
+  justify-content:space-between;transition:border-color 1.2s;background:rgba(0,0,0,0.2);
+}
+footer p{font-family:'Fira Code',monospace;font-size:0.7rem;color:var(--text2);transition:color 1.2s}
+footer p span{color:var(--a1);transition:color 1.2s}
+
+/* ═══════════════════════════════
+   REVEAL ANIMATIONS
+═══════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:0.08s}
+.reveal-d2{transition-delay:0.16s}
+.reveal-d3{transition-delay:0.24s}
+.reveal-d4{transition-delay:0.32s}
+
+/* ═══════════════════════════════
+   RESPONSIVE — TABLET 960px
+═══════════════════════════════ */
+@media (max-width:960px){
+  /* Nav */
+  #main-nav{padding:1rem 1.5rem}
+  nav ul{display:none}
+  #nav-hamburger{display:flex}
+  #mobile-drawer{display:flex}
+
+  /* Hero */
+  #hero{grid-template-columns:1fr;padding:5.5rem 1.5rem 3rem;gap:0}
+  .hero-weather{display:none}
+  .scroll-hint{display:none}
+
+  /* Sections */
+  .section-wrap{padding:4.5rem 1.5rem}
+
+  /* About */
+  #about{grid-template-columns:1fr;gap:2.5rem}
+  .about-card{max-width:100%}
+
+  /* Skills */
+  .skills-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* Projects */
+  .projects-grid{grid-template-columns:repeat(2,1fr)}
+
+  /* Season switcher */
+  #season-switcher{
+    top:auto;bottom:6rem;right:0;transform:none;
+    flex-direction:row;border-radius:100px 0 0 100px;
+    border:1px solid var(--border);border-right:none;
+  }
+  .sw-label{display:none}
+  .season-btn .s-name{display:none}
+  .season-btn{padding:0.65rem 0.75rem}
+
+  /* Weather badge */
+  #weather-badge{top:auto;bottom:1rem;left:50%;transform:translateX(-50%)}
+
+  /* FABs */
+  #fab-group{bottom:8rem;left:1rem;gap:0.6rem}
+
+  /* Footer */
+  footer{flex-direction:column;gap:0.4rem;text-align:center;padding:1.25rem 1.5rem}
+}
+
+/* ═══════════════════════════════
+   RESPONSIVE — MOBILE 600px
+═══════════════════════════════ */
+@media (max-width:600px){
+  /* Nav */
+  #main-nav{padding:0.85rem 1.25rem}
+  .nav-logo{font-size:1rem}
+
+  /* Hero */
+  #hero{padding:5rem 1.25rem 2.5rem}
+  .hero-name{font-size:clamp(2rem,10vw,2.6rem)}
+  .hero-actions{flex-direction:column}
+  .hero-actions .btn{width:100%;justify-content:center}
+
+  /* Skills */
+  .skills-grid{grid-template-columns:1fr}
+
+  /* Projects */
+  .projects-grid{grid-template-columns:1fr}
+
+  /* Form */
+  .form-row{grid-template-columns:1fr}
+  .contact-form{padding:1.5rem 1.25rem}
+  .btn-whatsapp,.btn-call{width:100%;justify-content:center}
+  .contact-quick{flex-direction:column;align-items:stretch}
+  .contact-actions{flex-direction:column;align-items:center}
+
+  /* Weather badge */
+  #weather-badge{font-size:0.65rem;padding:0.35rem 0.75rem 0.35rem 0.6rem}
+
+  /* FABs */
+  #fab-group{bottom:6rem;left:1rem}
+  .fab{max-width:46px}
+  .fab-icon{width:46px;height:46px;font-size:1.15rem}
+  .fab:hover{max-width:180px}
+
+  /* Auto badge */
+  #auto-badge{font-size:0.65rem;bottom:1rem}
+
+  /* Season switcher */
+  #season-switcher{bottom:4.5rem}
+
+  /* Section padding */
+  .section-wrap{padding:3.5rem 1.25rem}
+
+  /* Stat grid */
+  .stat-grid{grid-template-columns:repeat(3,1fr)}
+
+  /* Footer */
+  footer{padding:1rem 1.25rem}
+}
+
+/* ═══════════════════════════════
+   REDUCED MOTION
+═══════════════════════════════ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body class="winter">
+
+<!-- Skip Navigation (a11y) -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Weather Canvas (background) -->
+<canvas id="weather-canvas" aria-hidden="true"></canvas>
+
+<!-- Auto badge -->
+<div id="auto-badge" role="status" aria-live="polite"></div>
+
+<!-- Season Switcher -->
+<aside id="season-switcher" aria-label="Season theme selector">
+  <div class="sw-label" aria-hidden="true">Season</div>
+  <button class="season-btn active" data-season="winter" aria-label="Switch to Winter theme" aria-pressed="true">
+    <span class="s-icon" aria-hidden="true">❄️</span>
+    <span class="s-name">Winter</span>
+  </button>
+  <button class="season-btn" data-season="rain" aria-label="Switch to Rain theme" aria-pressed="false">
+    <span class="s-icon" aria-hidden="true">🌧️</span>
+    <span class="s-name">Rain</span>
+  </button>
+  <button class="season-btn" data-season="summer" aria-label="Switch to Summer theme" aria-pressed="false">
+    <span class="s-icon" aria-hidden="true">☀️</span>
+    <span class="s-name">Summer</span>
+  </button>
+  <button class="season-btn" data-season="autumn" aria-label="Switch to Autumn theme" aria-pressed="false">
+    <span class="s-icon" aria-hidden="true">🍂</span>
+    <span class="s-name">Autumn</span>
+  </button>
+</aside>
+
+<!-- Floating Weather Badge — Hyderabad live temperature -->
+<div id="weather-badge" class="loading" role="status" aria-live="polite" aria-label="Live weather in Hyderabad">
+  <span class="wb-pulse" aria-hidden="true"></span>
+  <span class="wb-icon" id="wb-icon" aria-hidden="true">🌡️</span>
+  <span class="wb-temp" id="wb-temp">--°C</span>
+  <span class="wb-sep" aria-hidden="true">·</span>
+  <span class="wb-city">Hyderabad</span>
+</div>
+
+<!-- Navigation -->
+<header>
+  <nav id="main-nav" aria-label="Main navigation">
+    <a href="#" class="nav-logo" aria-label="Sai Charan Kolipaka — Home">sai<mark>charan</mark></a>
+    <ul role="list">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact" class="nav-cta">Hire Me</a></li>
+    </ul>
+    <!-- Hamburger — shown on mobile only via CSS -->
+    <button id="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </nav>
+</header>
+
+<!-- Mobile Drawer -->
+<nav id="mobile-drawer" aria-label="Mobile navigation" aria-hidden="true">
+  <ul role="list">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+  </ul>
+  <a href="#contact" class="mob-cta" aria-label="Hire Sai Charan">Hire Me →</a>
+</nav>
+<div id="drawer-overlay" aria-hidden="true"></div>
+
+<!-- MAIN CONTENT -->
+<main id="main-content">
+
+  <!-- ── HERO ── -->
+  <section id="hero" aria-labelledby="hero-title">
+    <div class="hero-left">
+      <div class="hero-kicker" aria-hidden="true">
+        <span class="hero-kicker-dot"></span>
+        <span id="hero-eyebrow">Available for work</span>
+      </div>
+
+      <h1 class="hero-name" id="hero-title">
+        Hey, I'm
+        <span class="hero-name-accent">Sai Charan Kolipaka.</span>
+      </h1>
+
+      <p class="hero-role-wrap" aria-live="polite" aria-label="I am a frontend developer">
+        <span class="typed-text" id="typed" aria-hidden="true"></span><span class="type-cursor" aria-hidden="true"></span>
+      </p>
+
+      <p class="hero-desc">
+        I craft <strong>fast, accessible</strong> and beautifully animated web experiences — turning complex ideas into pixel-perfect interfaces that <strong>users love to use</strong>.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-solid">
+          <span>View My Work</span>
+          <span class="btn-icon" aria-hidden="true">→</span>
+        </a>
+        <a href="#contact" class="btn btn-outline">
+          <span>Get In Touch</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-weather" aria-hidden="true">
+      <canvas id="weather-icon-canvas" width="180" height="180"></canvas>
+      <p class="weather-label" id="weather-label-text">❄ Winter</p>
+      <!-- Live Weather Card — Hyderabad -->
+      <div class="live-weather" id="live-weather" role="region" aria-label="Live weather in Hyderabad">
+        <span class="lw-loading" id="lw-loading">Fetching weather…</span>
+        <div id="lw-content" style="display:none;width:100%;text-align:center;">
+          <p class="lw-location">Hyderabad, IN</p>
+          <div class="lw-temp-row">
+            <span class="lw-temp" id="lw-temp">--</span>
+            <span class="lw-unit">°C</span>
+          </div>
+          <p class="lw-desc" id="lw-desc">--</p>
+          <div class="lw-meta">
+            <span><span class="lw-dot"></span>Live</span>
+            <span id="lw-humidity">--</span>
+            <span id="lw-wind">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── STACK MARQUEE ── -->
+  <div id="stack-strip" aria-label="Technologies I work with" role="region">
+    <div class="marquee-track" aria-hidden="true">
+      <div class="marquee-row" id="mq-row"></div>
+    </div>
+  </div>
+
+  <!-- ── ABOUT ── -->
+  <section id="about" class="section-wrap" aria-labelledby="about-title">
+    <div class="about-visual reveal">
+      <div class="about-card">
+        <div class="about-avatar" aria-hidden="true">👨‍💻</div>
+        <h3>Sai Charan Kolipaka</h3>
+        <p class="role-label">Frontend Developer · Hyderabad, India</p>
+        <p>Based in Hyderabad, India. Open to remote opportunities worldwide.</p>
+        <div class="stat-grid" role="list">
+          <div class="stat-item" role="listitem">
+            <span class="sv" aria-label="6 plus years of experience">6+</span>
+            <span class="sl">Years Exp.</span>
+          </div>
+          <div class="stat-item" role="listitem">
+            <span class="sv" aria-label="60 plus projects shipped">60+</span>
+            <span class="sl">Projects</span>
+          </div>
+          <div class="stat-item" role="listitem">
+            <span class="sv" aria-label="Lighthouse score 99">99</span>
+            <span class="sl">Lighthouse</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-text-block">
+      <p class="section-tag" aria-hidden="true">About me</p>
+      <h2 class="section-heading reveal" id="about-title">
+        Turning ideas into<br><mark>living interfaces</mark>
+      </h2>
+      <p class="reveal reveal-d1">
+        I'm a frontend engineer obsessed with the intersection of <strong>design and engineering</strong>. I believe great UI is architecture, performance, and empathy rolled into one — built for the person on the other side of the screen.
+      </p>
+      <p class="reveal reveal-d2">
+        Currently building modern frontend experiences with <strong>Angular</strong> and <strong>React</strong>, with a focus on clean architecture, reusable components, and smooth user interactions.
+      </p>
+      <p class="reveal reveal-d3">
+        When I'm not pushing pixels, I'm writing about frontend patterns, contributing to open source, or tuning my mechanical keyboard setup.
+      </p>
+      <div class="about-chips reveal reveal-d4" aria-label="Interests and specialties">
+        <span class="about-chip">HTML5</span>
+        <span class="about-chip">CSS3</span>
+        <span class="about-chip">JavaScript</span>
+        <span class="about-chip">SCSS</span>
+        <span class="about-chip">Tailwind</span>
+        <span class="about-chip">Angular</span>
+        <span class="about-chip">React</span>
+        <span class="about-chip">GitHub</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SKILLS ── -->
+  <section id="skills" class="section-wrap alt-bg" aria-labelledby="skills-title">
+    <div class="skills-header">
+      <p class="section-tag">Technical Skills</p>
+      <h2 class="section-heading reveal" id="skills-title">What I <mark>build with</mark></h2>
+      <p class="section-sub reveal reveal-d1" style="margin:0 auto;">Honed across 6+ years of production frontend work — from design systems to performance-critical consumer apps.</p>
+    </div>
+    <div class="skills-grid">
+      <article class="skill-card reveal" aria-label="Markup and styling skills">
+        <span class="skill-card-icon" aria-hidden="true">🧱</span>
+        <h3 class="skill-card-title">Markup &amp; Styling</h3>
+        <div class="skill-row">
+          <div class="skill-meta"><span>HTML5</span><span aria-label="96 percent">96%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100" aria-label="HTML5 proficiency"><div class="skill-fill" data-w="96"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>CSS3 / SCSS</span><span aria-label="94 percent">94%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100" aria-label="CSS3 and SCSS proficiency"><div class="skill-fill" data-w="94"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Tailwind CSS</span><span aria-label="90 percent">90%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" aria-label="Tailwind CSS proficiency"><div class="skill-fill" data-w="90"></div></div>
+        </div>
+      </article>
+      <article class="skill-card reveal reveal-d1" aria-label="JavaScript skills">
+        <span class="skill-card-icon" aria-hidden="true">⚙️</span>
+        <h3 class="skill-card-title">JavaScript</h3>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Core JavaScript (ES6+)</span><span aria-label="90 percent">90%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" aria-label="JavaScript ES6 plus proficiency"><div class="skill-fill" data-w="90"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>DOM &amp; Async APIs</span><span aria-label="88 percent">88%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100" aria-label="DOM and async APIs proficiency"><div class="skill-fill" data-w="88"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Problem Solving</span><span aria-label="85 percent">85%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="Problem solving proficiency"><div class="skill-fill" data-w="85"></div></div>
+        </div>
+      </article>
+      <article class="skill-card reveal reveal-d2" aria-label="Frontend framework skills">
+        <span class="skill-card-icon" aria-hidden="true">🅰️</span>
+        <h3 class="skill-card-title">Frontend Frameworks</h3>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Angular</span><span aria-label="87 percent">87%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100" aria-label="Angular proficiency"><div class="skill-fill" data-w="87"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>React</span><span aria-label="85 percent">85%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="React proficiency"><div class="skill-fill" data-w="85"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Component Architecture</span><span aria-label="86 percent">86%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="86" aria-valuemin="0" aria-valuemax="100" aria-label="Component architecture proficiency"><div class="skill-fill" data-w="86"></div></div>
+        </div>
+      </article>
+      <article class="skill-card reveal reveal-d3" aria-label="Tooling and version control skills">
+        <span class="skill-card-icon" aria-hidden="true">🔧</span>
+        <h3 class="skill-card-title">Tooling &amp; Workflow</h3>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Git / GitHub</span><span aria-label="92 percent">92%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100" aria-label="Git and GitHub proficiency"><div class="skill-fill" data-w="92"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Responsive Design</span><span aria-label="93 percent">93%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="93" aria-valuemin="0" aria-valuemax="100" aria-label="Responsive design proficiency"><div class="skill-fill" data-w="93"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta"><span>Cross-Browser Debugging</span><span aria-label="84 percent">84%</span></div>
+          <div class="skill-track" role="progressbar" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100" aria-label="Cross-browser debugging proficiency"><div class="skill-fill" data-w="84"></div></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects" class="section-wrap" aria-labelledby="projects-title">
+    <div class="projects-header">
+      <p class="section-tag">Selected Work</p>
+      <h2 class="section-heading reveal" id="projects-title">Featured <mark>Projects</mark></h2>
+      <p class="section-sub reveal reveal-d1">A selection of production work spanning maps, data, commerce, and AI.</p>
+    </div>
+    <div class="projects-grid">
+      <article class="project-card reveal" aria-label="Interactive POI Map project">
+        <div class="project-thumb" style="background:linear-gradient(135deg,#0a1628 0%,#071020 100%);" aria-hidden="true">
+          🗺️
+          <div class="project-links">
+            <a href="#" aria-label="View Interactive POI Map live demo">Live ↗</a>
+            <a href="#" aria-label="View Interactive POI Map source code on GitHub">GitHub</a>
+          </div>
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="ptag">React</span><span class="ptag">Leaflet.js</span><span class="ptag">TypeScript</span>
+          </div>
+          <h3 class="project-title">Interactive POI Map</h3>
+          <p class="project-desc">Category-driven explorer with smart auto-zoom, custom marker clustering, and real-time filtering across 10k+ data points.</p>
+        </div>
+      </article>
+      <article class="project-card reveal reveal-d1" aria-label="Analytics Dashboard project">
+        <div class="project-thumb" style="background:linear-gradient(135deg,#071420 0%,#040c16 100%);" aria-hidden="true">
+          📊
+          <div class="project-links">
+            <a href="#" aria-label="View Analytics Dashboard live demo">Live ↗</a>
+            <a href="#" aria-label="View Analytics Dashboard source code on GitHub">GitHub</a>
+          </div>
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="ptag">Next.js</span><span class="ptag">D3.js</span><span class="ptag">Zustand</span>
+          </div>
+          <h3 class="project-title">Analytics Dashboard</h3>
+          <p class="project-desc">Real-time metrics platform with animated charts, dark mode system, and a layout that stays readable at any viewport.</p>
+        </div>
+      </article>
+      <article class="project-card reveal reveal-d2" aria-label="E-Commerce Storefront project">
+        <div class="project-thumb" style="background:linear-gradient(135deg,#180720 0%,#0c0414 100%);" aria-hidden="true">
+          🛒
+          <div class="project-links">
+            <a href="#" aria-label="View E-Commerce Storefront live demo">Live ↗</a>
+            <a href="#" aria-label="View E-Commerce Storefront source code on GitHub">GitHub</a>
+          </div>
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="ptag">Next.js</span><span class="ptag">Stripe</span><span class="ptag">Tailwind</span>
+          </div>
+          <h3 class="project-title">E-Commerce Storefront</h3>
+          <p class="project-desc">Full-featured shop with persistent cart, optimised checkout flow, and a Lighthouse score that never dips below 98.</p>
+        </div>
+      </article>
+      <article class="project-card reveal reveal-d3" aria-label="AI Chat Interface project">
+        <div class="project-thumb" style="background:linear-gradient(135deg,#0f1400 0%,#080e00 100%);" aria-hidden="true">
+          🤖
+          <div class="project-links">
+            <a href="#" aria-label="View AI Chat Interface live demo">Live ↗</a>
+            <a href="#" aria-label="View AI Chat Interface source code on GitHub">GitHub</a>
+          </div>
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="ptag">React</span><span class="ptag">WebSockets</span><span class="ptag">OpenAI</span>
+          </div>
+          <h3 class="project-title">AI Chat Interface</h3>
+          <p class="project-desc">Streaming chat UI with message threading, syntax-highlighted code blocks, and token-efficient context management.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ── -->
+  <section id="contact" class="section-wrap alt-bg" aria-labelledby="contact-title">
+    <div class="contact-inner">
+      <p class="section-tag">Let's connect</p>
+      <h2 class="section-heading reveal" id="contact-title">Got a project<br>in <mark>mind?</mark></h2>
+      <p class="section-sub reveal reveal-d1">Open to interesting work, collaborations, or a good conversation about frontend architecture. Typical response within 24 hours.</p>
+
+      <form class="contact-form reveal reveal-d2" id="contact-form" novalidate aria-labelledby="contact-title">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="cf-name">Name <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="cf-name" name="name" placeholder="Your full name" autocomplete="name" required aria-required="true" />
+            <span class="field-error" role="alert">Please enter your name.</span>
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="cf-email" name="email" placeholder="you@example.com" autocomplete="email" required aria-required="true" />
+            <span class="field-error" role="alert">Please enter a valid email.</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="cf-phone">Phone Number</label>
+          <input type="tel" id="cf-phone" name="phone" placeholder="+91 98765 43210" autocomplete="tel" />
+          <span class="field-error" role="alert">Please enter a valid phone number.</span>
+        </div>
+
+        <!-- Honeypot field — invisible to humans, catches basic spam bots without needing an API key -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="cf-website">Website</label>
+          <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button type="submit" class="btn btn-solid form-submit">
+          <span>Send Message</span>
+          <span class="btn-icon" aria-hidden="true">→</span>
+        </button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="contact-actions reveal reveal-d2">
+        <a href="mailto:charan.webdev007@gmail.com" class="btn btn-outline">
+          <span>Email Me Directly</span>
+          <span class="btn-icon" aria-hidden="true">✉</span>
+        </a>
+        <a href="#" class="btn btn-outline">Download CV</a>
+      </div>
+
+      <!-- WhatsApp & Call quick-connect -->
+      <div class="contact-quick reveal reveal-d3" aria-label="Quick contact options">
+        <a href="https://wa.me/919177519795?text=Hi%20Sai%20Charan%2C%20I%20came%20across%20your%20portfolio%20and%20would%20love%20to%20discuss%20a%20project!"
+           class="btn-whatsapp"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Chat on WhatsApp with Sai Charan">
+          <svg class="btn-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.73.443 3.357 1.219 4.773L2 22l5.39-1.198A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.521 2 11.998 2zm0 18c-1.618 0-3.132-.437-4.437-1.2l-.319-.189-3.197.71.726-3.113-.208-.332A7.956 7.956 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.58 8-7.998 8z"/></svg>
+          WhatsApp Me
+        </a>
+        <a href="tel:+919177519795"
+           class="btn-call"
+           aria-label="Call Sai Charan at +91 91775 19795">
+          <svg class="btn-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          Call Me
+        </a>
+      </div>
+
+      <div class="social-row reveal reveal-d3" aria-label="Social media links">
+        <a href="#" class="social-link" aria-label="GitHub profile">⌥ GitHub</a>
+        <a href="#" class="social-link" aria-label="LinkedIn profile">in LinkedIn</a>
+        <a href="#" class="social-link" aria-label="Twitter profile">✕ Twitter</a>
+        <a href="#" class="social-link" aria-label="CodePen profile">{ CodePen</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Floating WhatsApp + Call FABs (visible on all pages) -->
+<div id="fab-group" aria-label="Quick contact buttons">
+  <a href="https://wa.me/919177519795?text=Hi%20Sai%20Charan%2C%20I%20came%20across%20your%20portfolio%20and%20would%20love%20to%20discuss%20a%20project!"
+     class="fab fab-wa"
+     target="_blank"
+     rel="noopener noreferrer"
+     aria-label="Chat on WhatsApp with Sai Charan">
+    <span class="fab-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.73.443 3.357 1.219 4.773L2 22l5.39-1.198A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.521 2 11.998 2zm0 18c-1.618 0-3.132-.437-4.437-1.2l-.319-.189-3.197.71.726-3.113-.208-.332A7.956 7.956 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.58 8-7.998 8z"/></svg>
+    </span>
+    <span class="fab-label">WhatsApp</span>
+  </a>
+  <a href="tel:+919177519795"
+     class="fab fab-call"
+     aria-label="Call Sai Charan at +91 91775 19795">
+    <span class="fab-icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+    </span>
+    <span class="fab-label">+91 91775 19795</span>
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Designed &amp; built by <span>Sai Charan Kolipaka</span></p>
+  <p>© <span id="year"></span> — All rights reserved</p>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════
+   SEASONAL ENGINE — 4 canvas-based weather systems
+══════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════
+   INDIA SEASON MAP (by calendar month)
+   Summer  : Mar–Jun  (3,4,5,6)
+   Monsoon : Jul–Sep  (7,8,9)
+   Autumn  : Oct–Nov  (10,11)
+   Winter  : Dec–Feb  (12,1,2)
+══════════════════════════════════════════════════ */
+const SEASONS = {
+  summer: { label: '☀ Summer',  eyebrow: 'Shipping hot new features',   months: [3,4,5,6],  wlabel: '☀ Summer'  },
+  rain:   { label: '🌧 Monsoon', eyebrow: 'Building through the storm',  months: [7,8,9],    wlabel: '🌧 Monsoon' },
+  autumn: { label: '🍂 Autumn',  eyebrow: 'Harvesting great code',       months: [10,11],    wlabel: '🍂 Autumn'  },
+  winter: { label: '❄ Winter',  eyebrow: 'Crafting cool interfaces',     months: [12,1,2],   wlabel: '❄ Winter'  },
+};
+
+function getIndianSeason() {
+  // Uses IST (UTC+5:30) so the detection is correct even for users in other timezones
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const m   = now.getMonth() + 1; // 1–12
+  for (const [key, val] of Object.entries(SEASONS)) {
+    if (val.months.includes(m)) return key;
+  }
+  return 'winter';
+}
+
+/* ── Canvas ── */
+const canvas = document.getElementById('weather-canvas');
+const ctx    = canvas.getContext('2d');
+let W = 0, H = 0;
+function resizeCanvas() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas, { passive: true });
+
+/* ══════════════════════════════════════════════════
+   PARTICLE SYSTEMS
+══════════════════════════════════════════════════ */
+
+/* ── SNOW (Winter) ── */
+class SnowFlake {
+  constructor() { this.init(true); }
+  init(rand = false) {
+    this.x  = Math.random() * W;
+    this.y  = rand ? Math.random() * H : -8;
+    this.r  = Math.random() * 3.2 + 0.8;
+    this.vy = Math.random() * 0.9 + 0.25;
+    this.vx = (Math.random() - 0.5) * 0.5;
+    this.op = Math.random() * 0.65 + 0.2;
+    this.wo = Math.random() * Math.PI * 2;
+    this.ws = 0.012 + Math.random() * 0.014;
+  }
+  tick() {
+    this.wo += this.ws;
+    this.x  += this.vx + Math.sin(this.wo) * 0.35;
+    this.y  += this.vy;
+    if (this.y > H + 10) this.init();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.op;
+    ctx.fillStyle   = '#cce4ff';
+    ctx.shadowBlur  = 7;
+    ctx.shadowColor = '#99c8ff';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* ── RAIN (Spring) ── */
+class RainDrop {
+  constructor() { this.init(true); }
+  init(rand = false) {
+    this.x   = Math.random() * W;
+    this.y   = rand ? Math.random() * H : -20;
+    this.len = Math.random() * 16 + 7;
+    this.vy  = Math.random() * 9 + 11;
+    this.op  = Math.random() * 0.38 + 0.12;
+    this.sx  = false;
+    this.sr  = 0;
+    this.so  = 0;
+  }
+  tick() {
+    this.x += this.vy * 0.08;
+    this.y += this.vy;
+    if (this.y > H - 3) {
+      if (!this.sx) { this.sx = true; this.sr = 1; this.so = 0.55; }
+      this.sr  += 0.9;
+      this.so  -= 0.055;
+      if (this.so <= 0) this.init();
+    }
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.op;
+    ctx.strokeStyle = '#5affc0';
+    ctx.lineWidth   = 1.1;
+    ctx.shadowBlur  = 4;
+    ctx.shadowColor = '#00e676';
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.x - this.vy * 0.06 * this.len, this.y - this.len);
+    ctx.stroke();
+    if (this.sx && this.so > 0) {
+      ctx.globalAlpha = this.so * 0.4;
+      ctx.beginPath();
+      ctx.arc(this.x, H - 3, this.sr, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+/* ── SUN RAY (Summer) ── */
+class SunRay {
+  constructor() {
+    this.angle = Math.random() * Math.PI * 2;
+    this.speed = (Math.random() - 0.5) * 0.0015;
+    this.len   = Math.random() * 200 + 100;
+    this.w     = Math.random() * 70 + 25;
+    this.op    = Math.random() * 0.07 + 0.015;
+    this.po    = Math.random() * Math.PI * 2;
+  }
+  cx() { return W * 0.78; }
+  cy() { return H * 0.18; }
+  tick() {
+    this.angle += this.speed;
+    this.po    += 0.012;
+  }
+  draw() {
+    const pulse = 1 + Math.sin(this.po) * 0.12;
+    const cx = this.cx(), cy = this.cy();
+    const ex = cx + Math.cos(this.angle) * this.len * pulse;
+    const ey = cy + Math.sin(this.angle) * this.len * pulse;
+    ctx.save();
+    ctx.globalAlpha = this.op * pulse;
+    const g = ctx.createLinearGradient(cx, cy, ex, ey);
+    g.addColorStop(0, '#ffdd44');
+    g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g;
+    const perp = this.angle + Math.PI / 2;
+    const hw   = this.w * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(ex + Math.cos(perp)*hw, ey + Math.sin(perp)*hw);
+    ctx.lineTo(ex - Math.cos(perp)*hw, ey - Math.sin(perp)*hw);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
+class Ember {
+  constructor() { this.init(true); }
+  init(rand = false) {
+    this.x  = Math.random() * W;
+    this.y  = rand ? Math.random() * H : H + 5;
+    this.r  = Math.random() * 2 + 0.5;
+    this.vy = Math.random() * 0.55 + 0.15;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.op = Math.random() * 0.3 + 0.04;
+  }
+  tick() {
+    this.y -= this.vy;
+    this.x += this.vx;
+    if (this.y < -5) this.init();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.op;
+    ctx.fillStyle   = '#ffaa22';
+    ctx.shadowBlur  = 10;
+    ctx.shadowColor = '#ff7700';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* ── LEAVES (Autumn) ── */
+const LEAF_COLORS = ['#e8834a','#f5a430','#cc4400','#d97c1a','#bf3a00'];
+class Leaf {
+  constructor() { this.init(true); }
+  init(rand = false) {
+    this.x   = Math.random() * W;
+    this.y   = rand ? Math.random() * H : -22;
+    this.sz  = Math.random() * 9 + 5;
+    this.vy  = Math.random() * 1.3 + 0.4;
+    this.vx  = (Math.random() - 0.5) * 1.6;
+    this.rot = Math.random() * Math.PI * 2;
+    this.rs  = (Math.random() - 0.5) * 0.06;
+    this.op  = Math.random() * 0.65 + 0.2;
+    this.wo  = Math.random() * Math.PI * 2;
+    this.ws  = 0.02 + Math.random() * 0.02;
+    this.col = LEAF_COLORS[Math.floor(Math.random() * LEAF_COLORS.length)];
+  }
+  tick() {
+    this.wo  += this.ws;
+    this.x   += this.vx + Math.sin(this.wo) * 1.1;
+    this.y   += this.vy;
+    this.rot += this.rs;
+    if (this.y > H + 22 || this.x < -22 || this.x > W + 22) this.init();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.op;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.shadowBlur  = 5;
+    ctx.shadowColor = this.col;
+    ctx.fillStyle   = this.col;
+    const s = this.sz;
+    ctx.beginPath();
+    ctx.moveTo(0, -s);
+    ctx.bezierCurveTo( s, -s*.5,  s,  s*.5, 0,  s);
+    ctx.bezierCurveTo(-s,  s*.5, -s, -s*.5, 0, -s);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth   = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(0, -s*.8);
+    ctx.lineTo(0,  s*.8);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/* ── PARTICLE POOL ── */
+let particles = [];
+function buildParticles(season) {
+  particles = [];
+  if (season === 'winter') {
+    for (let i = 0; i < 170; i++) particles.push(new SnowFlake());
+  } else if (season === 'rain') {
+    for (let i = 0; i < 240; i++) particles.push(new RainDrop());
+  } else if (season === 'summer') {
+    for (let i = 0; i < 20;  i++) particles.push(new SunRay());
+    for (let i = 0; i < 90;  i++) particles.push(new Ember());
+  } else if (season === 'autumn') {
+    for (let i = 0; i < 100; i++) particles.push(new Leaf());
+  }
+}
+
+/* ── WEATHER ICON CANVAS ── */
+const ic    = document.getElementById('weather-icon-canvas');
+const ictx  = ic.getContext('2d');
+let   iAngle = 0;
+
+function drawIcon(season) {
+  ictx.clearRect(0, 0, 180, 180);
+  iAngle += 0.007;
+  const cx = 90, cy = 90;
+
+  if (season === 'winter') {
+    ictx.save();
+    ictx.translate(cx, cy);
+    ictx.rotate(iAngle);
+    ictx.strokeStyle = '#a8d8ff';
+    ictx.lineWidth   = 2.5;
+    ictx.shadowBlur  = 18;
+    ictx.shadowColor = '#7eb8f7';
+    for (let i = 0; i < 6; i++) {
+      ictx.save();
+      ictx.rotate((Math.PI / 3) * i);
+      ictx.beginPath();
+      ictx.moveTo(0,0); ictx.lineTo(0, 56);
+      ictx.moveTo(-12, 19); ictx.lineTo(0, 32); ictx.lineTo(12, 19);
+      ictx.stroke();
+      ictx.restore();
+    }
+    ictx.fillStyle = '#d8eeff';
+    ictx.beginPath(); ictx.arc(0,0,7,0,Math.PI*2); ictx.fill();
+    ictx.restore();
+
+  } else if (season === 'rain') {
+    ictx.save();
+    ictx.shadowBlur  = 12;
+    ictx.shadowColor = '#4fffb0';
+    // Cloud
+    ictx.fillStyle   = 'rgba(79,255,176,0.15)';
+    ictx.strokeStyle = '#4fffb0';
+    ictx.lineWidth   = 1.8;
+    ictx.beginPath();
+    ictx.arc(cx-18, cy-22, 25, 0, Math.PI*2);
+    ictx.arc(cx+10, cy-30, 20, 0, Math.PI*2);
+    ictx.arc(cx+28, cy-12, 18, 0, Math.PI*2);
+    ictx.arc(cx-4,  cy-2,  22, 0, Math.PI*2);
+    ictx.fill(); ictx.stroke();
+    // Drops
+    const t = Date.now() / 380;
+    for (let i = 0; i < 5; i++) {
+      const frac = (t + i * 0.38) % 1;
+      const dx = cx - 36 + i * 18;
+      const dy = cy + 22 + frac * 46;
+      ictx.globalAlpha = 0.85 - frac * 0.6;
+      ictx.strokeStyle = '#4fffb0';
+      ictx.lineWidth   = 1.6;
+      ictx.beginPath();
+      ictx.moveTo(dx,   dy-7);
+      ictx.lineTo(dx+3, dy+7);
+      ictx.stroke();
+    }
+    ictx.restore();
+
+  } else if (season === 'summer') {
+    ictx.save();
+    ictx.translate(cx, cy);
+    const p = 1 + Math.sin(iAngle * 3) * 0.045;
+    // Outer glow
+    const grd = ictx.createRadialGradient(0,0,18, 0,0,76);
+    grd.addColorStop(0, 'rgba(255,200,0,0.28)');
+    grd.addColorStop(1, 'transparent');
+    ictx.fillStyle = grd;
+    ictx.beginPath(); ictx.arc(0,0,76,0,Math.PI*2); ictx.fill();
+    // Rays
+    ictx.rotate(iAngle);
+    ictx.strokeStyle = '#ffcc00';
+    ictx.lineWidth   = 2.5;
+    ictx.shadowBlur  = 12;
+    ictx.shadowColor = '#ff9500';
+    for (let i = 0; i < 8; i++) {
+      ictx.save();
+      ictx.rotate((Math.PI/4)*i);
+      ictx.beginPath();
+      ictx.moveTo(0, 36*p); ictx.lineTo(0, 55*p);
+      ictx.stroke();
+      ictx.restore();
+    }
+    // Core
+    ictx.shadowBlur  = 24;
+    ictx.fillStyle   = '#ffcc00';
+    ictx.beginPath(); ictx.arc(0,0,27*p,0,Math.PI*2); ictx.fill();
+    ictx.restore();
+
+  } else if (season === 'autumn') {
+    ictx.save();
+    ictx.translate(cx, cy);
+    ictx.rotate(Math.sin(iAngle) * 0.14);
+    ictx.shadowBlur  = 16;
+    ictx.shadowColor = '#e8834a';
+    const lg = ictx.createLinearGradient(-38,-48, 38,48);
+    lg.addColorStop(0, '#f5a430');
+    lg.addColorStop(1, '#c05c20');
+    ictx.fillStyle = lg;
+    ictx.scale(1.4, 1.4);
+    ictx.beginPath();
+    ictx.moveTo(0,-44);
+    ictx.bezierCurveTo( 34,-24,  38, 20, 14, 44);
+    ictx.bezierCurveTo(  4, 49,  -4, 49,-14, 44);
+    ictx.bezierCurveTo(-38, 20, -34,-24,  0,-44);
+    ictx.fill();
+    // Stem
+    ictx.strokeStyle = '#7a3000';
+    ictx.lineWidth   = 1.8;
+    ictx.beginPath(); ictx.moveTo(0,44); ictx.lineTo(5,56); ictx.stroke();
+    // Veins
+    ictx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ictx.lineWidth   = 1;
+    ictx.beginPath();
+    ictx.moveTo(0,-40); ictx.lineTo(0,42);
+    ictx.moveTo(0,-8); ictx.lineTo(24,14);
+    ictx.moveTo(0,-8); ictx.lineTo(-24,14);
+    ictx.moveTo(0,12); ictx.lineTo(18,28);
+    ictx.moveTo(0,12); ictx.lineTo(-18,28);
+    ictx.stroke();
+    ictx.restore();
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   SEASON STATE MANAGEMENT
+══════════════════════════════════════════════════ */
+let currentSeason = getIndianSeason();
+let badgeTimer;
+
+function setSeason(season, manual = false) {
+  document.body.classList.remove('winter','rain','summer','autumn');
+  document.body.classList.add(season);
+  currentSeason = season;
+
+  // Update buttons
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    const active = btn.dataset.season === season;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+
+  // Particles
+  buildParticles(season);
+
+  // Hero eyebrow
+  const ey = document.getElementById('hero-eyebrow');
+  if (ey) ey.textContent = SEASONS[season].eyebrow;
+
+  // Weather label
+  const wl = document.getElementById('weather-label-text');
+  if (wl) wl.textContent = SEASONS[season].wlabel;
+
+  // Badge
+  clearTimeout(badgeTimer);
+  const badge = document.getElementById('auto-badge');
+  if (manual) {
+    badge.textContent = '🎛 Manually set: ' + SEASONS[season].label;
+  } else {
+    badge.textContent = '📍 India auto-detected: ' + SEASONS[season].label;
+  }
+  badge.classList.add('show');
+  badgeTimer = setTimeout(() => badge.classList.remove('show'), 3200);
+
+  // Save manual preference to sessionStorage only (clears on refresh/new tab)
+  // so every fresh page load always re-detects the real Indian season
+  try {
+    if (manual) {
+      sessionStorage.setItem('manual_season', season);
+    }
+  } catch(_) {}
+}
+
+/* Button listeners */
+document.querySelectorAll('.season-btn').forEach(btn => {
+  btn.addEventListener('click', () => setSeason(btn.dataset.season, true));
+});
+
+/* Keyboard: arrow keys in the switcher */
+const switcher = document.getElementById('season-switcher');
+switcher.addEventListener('keydown', e => {
+  const btns = [...switcher.querySelectorAll('.season-btn')];
+  const idx  = btns.indexOf(document.activeElement);
+  if (idx === -1) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); btns[(idx+1)%btns.length].focus(); }
+  if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  { e.preventDefault(); btns[(idx-1+btns.length)%btns.length].focus(); }
+});
+
+/* ── Init: always auto-detect Indian season on every page load / refresh ── */
+// Manual choice (sessionStorage) only persists within the same tab session,
+// not across refreshes — so the site always opens with the correct live season.
+let startSeason = getIndianSeason(); // real India season right now
+setSeason(startSeason, false);       // apply it, show "India auto-detected" badge
+
+/* ══════════════════════════════════════════════════
+   MAIN RENDER LOOP
+══════════════════════════════════════════════════ */
+const BG_OVERLAYS = {
+  winter: ['rgba(4,8,15,0.88)',  'rgba(7,13,28,0.75)', 'rgba(12,20,40,0.5)'],
+  rain:   ['rgba(3,10,6,0.9)',   'rgba(5,14,9,0.78)',  'rgba(8,22,13,0.5)'],
+  summer: ['rgba(10,5,0,0.9)',   'rgba(17,8,0,0.76)',  'rgba(26,13,0,0.48)'],
+  autumn: ['rgba(8,4,0,0.9)',    'rgba(15,7,0,0.76)',  'rgba(23,12,0,0.48)'],
+};
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  const cols = BG_OVERLAYS[currentSeason];
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0,   cols[0]);
+  g.addColorStop(0.5, cols[1]);
+  g.addColorStop(1,   cols[2]);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  particles.forEach(p => { p.tick(); p.draw(); });
+  drawIcon(currentSeason);
+
+  requestAnimationFrame(render);
+}
+render();
+
+/* ══════════════════════════════════════════════════
+   TYPEWRITER
+══════════════════════════════════════════════════ */
+const ROLES = [
+  'Frontend Engineer.',
+  'React Developer.',
+  'UI / UX Craftsman.',
+  'Performance Advocate.',
+  'Open Source Contributor.',
+];
+let ri = 0, ci = 0, deleting = false;
+const typedEl = document.getElementById('typed');
+
+(function typeLoop() {
+  const word = ROLES[ri];
+  if (!deleting) {
+    typedEl.textContent = word.slice(0, ++ci);
+    if (ci === word.length) { deleting = true; setTimeout(typeLoop, 1900); return; }
+    setTimeout(typeLoop, 78);
+  } else {
+    typedEl.textContent = word.slice(0, --ci);
+    if (ci === 0) { deleting = false; ri = (ri + 1) % ROLES.length; }
+    setTimeout(typeLoop, 40);
+  }
+})();
+
+/* ══════════════════════════════════════════════════
+   MARQUEE
+══════════════════════════════════════════════════ */
+const TECHS = ['HTML5','CSS3','JavaScript','SCSS','Tailwind CSS','Angular','React','GitHub','Git','Responsive Design','REST APIs','Figma'];
+const row   = document.getElementById('mq-row');
+const items = [...TECHS, ...TECHS].map(t =>
+  `<div class="tech-chip"><span class="tech-dot" aria-hidden="true"></span>${t}</div>`
+).join('');
+row.innerHTML = items;
+
+/* ══════════════════════════════════════════════════
+   SCROLL REVEAL  (IntersectionObserver)
+══════════════════════════════════════════════════ */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    e.target.querySelectorAll('.skill-fill').forEach(bar => {
+      bar.style.width = bar.dataset.w + '%';
+    });
+    revealObs.unobserve(e.target);
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ══════════════════════════════════════════════════
+   MISC
+══════════════════════════════════════════════════ */
+// Year
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ══════════════════════════════════════════════════
+   LIVE WEATHER — Open-Meteo (free, no API key)
+   Hyderabad, India: lat 17.3850 lon 78.4867
+══════════════════════════════════════════════════ */
+(function () {
+  const WMO_CODES = {
+    0:  { label: 'Clear Sky',        icon: '☀️' },
+    1:  { label: 'Mostly Clear',     icon: '🌤️' },
+    2:  { label: 'Partly Cloudy',    icon: '⛅' },
+    3:  { label: 'Overcast',         icon: '☁️' },
+    45: { label: 'Foggy',            icon: '🌫️' },
+    48: { label: 'Icy Fog',          icon: '🌫️' },
+    51: { label: 'Light Drizzle',    icon: '🌦️' },
+    53: { label: 'Drizzle',          icon: '🌦️' },
+    55: { label: 'Heavy Drizzle',    icon: '🌧️' },
+    61: { label: 'Light Rain',       icon: '🌧️' },
+    63: { label: 'Rain',             icon: '🌧️' },
+    65: { label: 'Heavy Rain',       icon: '🌧️' },
+    71: { label: 'Light Snow',       icon: '🌨️' },
+    73: { label: 'Snow',             icon: '❄️' },
+    75: { label: 'Heavy Snow',       icon: '❄️' },
+    80: { label: 'Rain Showers',     icon: '🌦️' },
+    81: { label: 'Showers',          icon: '🌧️' },
+    82: { label: 'Heavy Showers',    icon: '⛈️' },
+    95: { label: 'Thunderstorm',     icon: '⛈️' },
+    99: { label: 'Severe Storm',     icon: '🌩️' },
+  };
+
+  async function fetchWeather() {
+    const url =
+      'https://api.open-meteo.com/v1/forecast' +
+      '?latitude=17.3850&longitude=78.4867' +
+      '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code' +
+      '&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Asia/Kolkata';
+
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+      const cur  = data.current;
+
+      const temp     = Math.round(cur.temperature_2m);
+      const humidity = cur.relative_humidity_2m;
+      const wind     = Math.round(cur.wind_speed_10m);
+      const code     = cur.weather_code;
+      const wmo      = WMO_CODES[code] || { label: 'Unknown', icon: '🌡️' };
+
+      // ── Populate hero card (desktop)
+      document.getElementById('lw-temp').textContent     = temp;
+      document.getElementById('lw-desc').textContent     = `${wmo.icon}  ${wmo.label}`;
+      document.getElementById('lw-humidity').textContent = `💧 ${humidity}%`;
+      document.getElementById('lw-wind').textContent     = `💨 ${wind} km/h`;
+      document.getElementById('lw-loading').style.display = 'none';
+      document.getElementById('lw-content').style.display = 'block';
+
+      // ── Populate floating badge (all screens)
+      const badge = document.getElementById('weather-badge');
+      document.getElementById('wb-icon').textContent = wmo.icon;
+      document.getElementById('wb-temp').textContent = `${temp}°C`;
+      badge.setAttribute('aria-label', `Live weather in Hyderabad: ${temp}°C, ${wmo.label}`);
+      badge.classList.remove('loading');
+
+    } catch (_) {
+      document.getElementById('lw-loading').textContent = '— unavailable';
+      const badge = document.getElementById('weather-badge');
+      if (badge) { badge.classList.remove('loading'); document.getElementById('wb-temp').textContent = '--°C'; }
+    }
+  }
+
+  fetchWeather();
+  // Refresh every 10 minutes
+  setInterval(fetchWeather, 10 * 60 * 1000);
+})();
+
+// Nav active link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks  = document.querySelectorAll('nav ul a');
+const secObs    = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navLinks.forEach(a => {
+      const active = a.getAttribute('href') === '#' + e.target.id;
+      a.setAttribute('aria-current', active ? 'page' : 'false');
+    });
+  });
+}, { threshold: 0.4 });
+sections.forEach(s => secObs.observe(s));
+
+// Nav shrink on scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').style.padding =
+    window.scrollY > 40 ? '0.7rem 3.5rem' : '1.1rem 3.5rem';
+}, { passive: true });
+
+/* ══════════════════════════════════════════════════
+   HAMBURGER MENU
+══════════════════════════════════════════════════ */
+(function () {
+  const btn     = document.getElementById('nav-hamburger');
+  const drawer  = document.getElementById('mobile-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  if (!btn || !drawer) return;
+
+  function openDrawer() {
+    btn.classList.add('open');
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    // Focus first link in drawer for a11y
+    const first = drawer.querySelector('a');
+    if (first) setTimeout(() => first.focus(), 350);
+  }
+
+  function closeDrawer() {
+    btn.classList.remove('open');
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    btn.focus();
+  }
+
+  btn.addEventListener('click', () => {
+    btn.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+
+  // Close on overlay click
+  overlay.addEventListener('click', closeDrawer);
+
+  // Close when any drawer link is clicked
+  drawer.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeDrawer);
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && btn.classList.contains('open')) closeDrawer();
+  });
+})();
+
+/* ══════════════════════════════════════════════════
+   CONTACT FORM — Formspree SMTP (no SDK needed)
+   ⚙️  One-time setup:
+       1. Go to https://formspree.io → sign in with charan.webdev007@gmail.com
+       2. New Form → name it "Portfolio Contact" → copy the endpoint URL
+       3. Replace YOUR_FORMSPREE_ID below with just the ID part (e.g. xpzvgkqw)
+══════════════════════════════════════════════════ */
+(function () {
+  const FORMSPREE_ID = 'YOUR_FORMSPREE_ID'; // ← paste your Formspree form ID here
+
+  const form   = document.getElementById('contact-form');
+  if (!form) return;
+  const status = document.getElementById('form-status');
+
+  const PHONE_RE = /^[0-9+()\-\s]{7,20}$/;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setError(field, show) {
+    const wrap = field.closest('.form-field');
+    wrap.classList.toggle('has-error', show);
+    field.setAttribute('aria-invalid', show ? 'true' : 'false');
+  }
+
+  function validate() {
+    let ok = true;
+    const name  = form.querySelector('#cf-name');
+    const email = form.querySelector('#cf-email');
+    const phone = form.querySelector('#cf-phone');
+    if (!name.value.trim())                              { setError(name,  true);  ok = false; } else { setError(name,  false); }
+    if (!EMAIL_RE.test(email.value.trim()))              { setError(email, true);  ok = false; } else { setError(email, false); }
+    if (phone.value.trim() && !PHONE_RE.test(phone.value.trim())) { setError(phone, true); ok = false; } else { setError(phone, false); }
+    return ok;
+  }
+
+  form.querySelectorAll('input').forEach(f => f.addEventListener('input', () => setError(f, false)));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Honeypot — drop silent bot submissions
+    const hp = form.querySelector('#cf-website');
+    if (hp && hp.value.trim() !== '') { form.reset(); return; }
+
+    if (!validate()) {
+      status.style.color = '#e8736a';
+      status.textContent = 'Please fix the highlighted fields.';
+      const bad = form.querySelector('.has-error input');
+      if (bad) bad.focus();
+      return;
+    }
+
+    const submitBtn = form.querySelector('.form-submit');
+    submitBtn.disabled = true;
+    status.style.color = 'var(--text2)';
+    status.textContent = 'Sending…';
+
+    const name  = form.querySelector('#cf-name').value.trim();
+    const email = form.querySelector('#cf-email').value.trim();
+    const phone = form.querySelector('#cf-phone').value.trim() || 'Not provided';
+    const now   = new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
+
+    // ── Designed HTML email body (Formspree passes this as message to your Gmail)
+    const htmlBody = `
+<div style="margin:0;padding:0;background:#0d1117;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;padding:32px 0;">
+<tr><td align="center">
+<table width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;border-radius:12px;overflow:hidden;border:1px solid rgba(126,184,247,0.15);">
+
+  <!-- HEADER -->
+  <tr><td style="background:linear-gradient(135deg,#0c1428 0%,#0f1a30 100%);padding:32px 36px 28px;border-bottom:2px solid #7eb8f7;">
+    <p style="margin:0 0 5px;font-size:10px;color:#7eb8f7;letter-spacing:0.18em;text-transform:uppercase;font-family:Courier,monospace;">// portfolio.contact</p>
+    <h1 style="margin:0;font-size:24px;font-weight:700;color:#e4eeff;letter-spacing:-0.02em;">New Message Received ✉</h1>
+    <p style="margin:8px 0 0;font-size:13px;color:#5a7aaa;">Someone reached out via your portfolio contact form</p>
+  </td></tr>
+
+  <!-- BODY -->
+  <tr><td style="background:#0a1020;padding:28px 36px;">
+
+    <!-- Greeting -->
+    <p style="margin:0 0 22px;font-size:15px;color:#8ba6cc;line-height:1.7;">
+      Hey <strong style="color:#e4eeff;">Sai Charan</strong> 👋 — here's what they submitted:
+    </p>
+
+    <!-- Name card -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid rgba(126,184,247,0.12);">
+      <tr>
+        <td width="4" style="background:linear-gradient(180deg,#7eb8f7 0%,#3d7fd4 100%);"></td>
+        <td style="background:#0c1428;padding:13px 16px;">
+          <p style="margin:0 0 2px;font-size:10px;color:#3d7fd4;letter-spacing:0.14em;text-transform:uppercase;font-family:Courier,monospace;">Full Name</p>
+          <p style="margin:0;font-size:16px;color:#e4eeff;font-weight:600;">${name}</p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Email card -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid rgba(126,184,247,0.12);">
+      <tr>
+        <td width="4" style="background:linear-gradient(180deg,#7eb8f7 0%,#3d7fd4 100%);"></td>
+        <td style="background:#0c1428;padding:13px 16px;">
+          <p style="margin:0 0 2px;font-size:10px;color:#3d7fd4;letter-spacing:0.14em;text-transform:uppercase;font-family:Courier,monospace;">Email Address</p>
+          <a href="mailto:${email}" style="margin:0;font-size:15px;color:#7eb8f7;font-weight:600;text-decoration:none;">${email}</a>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Phone card -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid rgba(126,184,247,0.12);">
+      <tr>
+        <td width="4" style="background:linear-gradient(180deg,#7eb8f7 0%,#3d7fd4 100%);"></td>
+        <td style="background:#0c1428;padding:13px 16px;">
+          <p style="margin:0 0 2px;font-size:10px;color:#3d7fd4;letter-spacing:0.14em;text-transform:uppercase;font-family:Courier,monospace;">Phone Number</p>
+          <p style="margin:0;font-size:15px;color:#e4eeff;font-weight:600;">${phone}</p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- CTA Button -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:26px;">
+      <tr><td align="center">
+        <a href="mailto:${email}?subject=Re%3A%20Your%20message%20to%20Sai%20Charan%20Kolipaka"
+          style="display:inline-block;padding:13px 34px;background:#7eb8f7;color:#04080f;font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;letter-spacing:0.02em;">
+          ↩ Reply to ${name}
+        </a>
+      </td></tr>
+    </table>
+
+    <!-- Divider + Timestamp -->
+    <hr style="border:none;border-top:1px solid rgba(126,184,247,0.08);margin:0 0 18px;">
+    <p style="margin:0;font-size:11px;color:#3a5070;text-align:center;font-family:Courier,monospace;letter-spacing:0.07em;">
+      Received · ${now} · saicharan.dev/contact
+    </p>
+
+  </td></tr>
+
+  <!-- FOOTER -->
+  <tr><td style="background:#070c18;padding:18px 36px;border-top:1px solid rgba(126,184,247,0.07);">
+    <p style="margin:0;font-size:11px;color:#2d4060;text-align:center;">
+      Auto-generated by your portfolio · <strong style="color:#3a5870;">Sai Charan Kolipaka</strong> · charan.webdev007@gmail.com
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</div>`;
+
+    try {
+      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body   : JSON.stringify({
+          name   : name,
+          email  : email,
+          phone  : phone,
+          message: htmlBody,          // Formspree passes this as the email body
+          _replyto: email,            // makes "Reply" in Gmail go to the sender
+          _subject: `📬 New Contact from ${name} — Sai Charan Portfolio`,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        status.style.color = 'var(--a1)';
+        status.textContent = "✓ Message sent! I'll get back to you within 24 hours.";
+        form.reset();
+      } else {
+        throw new Error(data?.errors?.[0]?.message || 'Submission failed');
+      }
+    } catch (err) {
+      console.error('Form error:', err);
+      status.style.color = '#e8736a';
+      status.textContent = '✗ Something went wrong. Email me directly at charan.webdev007@gmail.com';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
