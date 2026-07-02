@@ -13,39 +13,73 @@
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
-   SEASON PALETTES — WCAG AA compliant contrast
+   SEASON PALETTES — lighter, vivid, luminous
 ═══════════════════════════════════════════════════ */
+
+/* WINTER — deep navy × icy blue × crystal white */
 body.winter {
-  --bg0:#04080f; --bg1:#070d1c; --bg2:#0c1428; --bg3:#111e38;
-  --a1:#7eb8f7; --a2:#b8d8ff; --a3:#3d7fd4;
-  --text:#e4eeff; --text2:#8ba6cc;
-  --border:rgba(126,184,247,0.14);
-  --glow:0 0 28px rgba(126,184,247,0.22);
-  --glow2:0 0 48px rgba(126,184,247,0.12);
+  --bg0:#0f1f3d; --bg1:#162444; --bg2:#1c2e54; --bg3:#243860;
+  --a1:#70d4ff; --a2:#c4eeff; --a3:#38a8f0;
+  --text:#e8f6ff; --text2:#90b8d8;
+  --border:rgba(112,212,255,0.22);
+  --glow:0 0 32px rgba(112,212,255,0.35);
+  --glow2:0 0 60px rgba(112,212,255,0.18);
+  --grad-a:#0f1f3d; --grad-b:#1a3060; --grad-c:#0f2850;
 }
+/* MONSOON — deep teal × vivid green × seafoam */
 body.rain {
-  --bg0:#030a06; --bg1:#050e09; --bg2:#08160d; --bg3:#0d2016;
-  --a1:#4fd98a; --a2:#9eedc4; --a3:#1ab86a;
-  --text:#d8f5e6; --text2:#5a9e7a;
-  --border:rgba(79,217,138,0.13);
-  --glow:0 0 28px rgba(79,217,138,0.22);
-  --glow2:0 0 48px rgba(79,217,138,0.1);
+  --bg0:#0a1f14; --bg1:#0f2a1c; --bg2:#163824; --bg3:#1e4a30;
+  --a1:#30e890; --a2:#90ffcc; --a3:#12c870;
+  --text:#d4f8ea; --text2:#52b87a;
+  --border:rgba(48,232,144,0.22);
+  --glow:0 0 32px rgba(48,232,144,0.35);
+  --glow2:0 0 60px rgba(48,232,144,0.16);
+  --grad-a:#0a1f14; --grad-b:#0d2e1a; --grad-c:#081a10;
 }
+/* SUMMER — warm brown × vivid amber × golden */
 body.summer {
-  --bg0:#0a0500; --bg1:#110800; --bg2:#1a0d00; --bg3:#261500;
-  --a1:#f5a623; --a2:#ffd97a; --a3:#d4820a;
-  --text:#fff4dc; --text2:#9a7035;
-  --border:rgba(245,166,35,0.14);
-  --glow:0 0 28px rgba(245,166,35,0.24);
-  --glow2:0 0 48px rgba(245,166,35,0.1);
+  --bg0:#1c1000; --bg1:#261600; --bg2:#321e00; --bg3:#402800;
+  --a1:#ffca40; --a2:#ffe898; --a3:#f09500;
+  --text:#fff9e8; --text2:#c09040;
+  --border:rgba(255,202,64,0.22);
+  --glow:0 0 32px rgba(255,202,64,0.35);
+  --glow2:0 0 60px rgba(255,202,64,0.16);
+  --grad-a:#1c1000; --grad-b:#2e1a00; --grad-c:#140c00;
 }
+/* AUTUMN — deep rust × vivid orange × warm sienna */
 body.autumn {
-  --bg0:#080400; --bg1:#0f0700; --bg2:#170c00; --bg3:#221200;
-  --a1:#e8834a; --a2:#f9c49a; --a3:#c05c20;
-  --text:#ffecd8; --text2:#8a5838;
-  --border:rgba(232,131,74,0.14);
-  --glow:0 0 28px rgba(232,131,74,0.22);
-  --glow2:0 0 48px rgba(232,131,74,0.1);
+  --bg0:#1e0e00; --bg1:#2a1400; --bg2:#381c00; --bg3:#462600;
+  --a1:#ff9c58; --a2:#ffd0a0; --a3:#e06818;
+  --text:#fff2e4; --text2:#b07848;
+  --border:rgba(255,156,88,0.22);
+  --glow:0 0 32px rgba(255,156,88,0.35);
+  --glow2:0 0 60px rgba(255,156,88,0.16);
+  --grad-a:#1e0e00; --grad-b:#301800; --grad-c:#160a00;
+}
+
+/* ══════════════════════════════════════════
+   ANIMATED GRADIENT BACKGROUND per season
+══════════════════════════════════════════ */
+body {
+  background: var(--bg0);
+  transition: background 1.4s ease, color 1.4s ease;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255,255,255,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 90%, var(--border) 0%, transparent 60%),
+    linear-gradient(160deg, var(--grad-a) 0%, var(--grad-b) 50%, var(--grad-c) 100%);
+  animation: bgBreath 8s ease-in-out infinite;
+  transition: background 1.4s ease;
+}
+@keyframes bgBreath {
+  0%,100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.02); }
 }
 
 /* ═══════════════════════════════
@@ -354,53 +388,6 @@ nav ul a:focus-visible{outline:2px solid var(--a1);outline-offset:4px;border-rad
 .btn-outline:hover{border-color:var(--a1);background:rgba(255,255,255,0.04);transform:translateY(-2px);box-shadow:var(--glow)}
 .btn-icon{font-size:0.95rem}
 
-/* WhatsApp & Call */
-.contact-quick{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
-.btn-whatsapp{
-  display:inline-flex;align-items:center;gap:0.55rem;padding:0.85rem 1.75rem;
-  background:#25D366;color:#fff;font-family:'Satoshi',sans-serif;font-weight:700;
-  font-size:0.92rem;text-decoration:none;border-radius:4px;border:none;cursor:pointer;
-  transition:transform 0.18s,box-shadow 0.18s,filter 0.18s;
-}
-.btn-whatsapp:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,211,102,0.35);filter:brightness(1.08)}
-.btn-whatsapp:focus-visible{outline:2px solid #25D366;outline-offset:3px}
-.btn-call{
-  display:inline-flex;align-items:center;gap:0.55rem;padding:0.85rem 1.75rem;
-  background:transparent;color:var(--a1);font-family:'Satoshi',sans-serif;font-weight:700;
-  font-size:0.92rem;text-decoration:none;border-radius:4px;border:1px solid var(--a1);cursor:pointer;
-  transition:background 0.18s,transform 0.18s,box-shadow 0.18s,border-color 1.2s,color 1.2s;
-}
-.btn-call:hover{background:var(--a1);color:var(--bg0);transform:translateY(-2px);box-shadow:var(--glow)}
-.btn-call:focus-visible{outline:2px solid var(--a1);outline-offset:3px}
-.btn-icon-svg{width:18px;height:18px;flex-shrink:0;fill:currentColor}
-
-/* Floating FABs */
-#fab-group{
-  position:fixed;bottom:2rem;left:2rem;z-index:300;
-  display:flex;flex-direction:column;align-items:flex-start;gap:0.75rem;
-}
-.fab{
-  display:flex;align-items:center;gap:0;padding:0;border:none;cursor:pointer;
-  text-decoration:none;border-radius:100px;overflow:hidden;
-  box-shadow:0 4px 20px rgba(0,0,0,0.4);
-  transition:transform 0.2s,box-shadow 0.2s,max-width 0.35s ease;
-  max-width:52px;white-space:nowrap;
-}
-.fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:200px}
-.fab:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.fab-icon{
-  width:52px;height:52px;display:flex;align-items:center;
-  justify-content:center;font-size:1.35rem;flex-shrink:0;
-}
-.fab-label{
-  font-family:'Fira Code',monospace;font-size:0.72rem;font-weight:500;
-  letter-spacing:0.04em;padding-right:1.1rem;opacity:0;
-  transition:opacity 0.2s 0.1s;color:#fff;
-}
-.fab:hover .fab-label{opacity:1}
-.fab-wa{background:#25D366}
-.fab-call{background:var(--a1);color:var(--bg0);transition:background 1.2s}
-.fab-call .fab-label{color:var(--bg0);transition:opacity 0.2s 0.1s,color 1.2s}
 
 /* ═══════════════════════════════
    MARQUEE STRIP
@@ -626,109 +613,139 @@ footer p span{color:var(--a1);transition:color 1.2s}
 /* ═══════════════════════════════
    RESPONSIVE — TABLET 960px
 ═══════════════════════════════ */
+/* ═══════════════════════════════
+   TABLET — 960px
+═══════════════════════════════ */
 @media (max-width:960px){
-  /* Nav */
-  #main-nav{padding:1rem 1.5rem}
+  /* Nav — hamburger */
+  #main-nav{padding:0.9rem 1.5rem}
   nav ul{display:none}
   #nav-hamburger{display:flex}
   #mobile-drawer{display:flex}
 
-  /* Hero */
+  /* Hero — single col */
   #hero{grid-template-columns:1fr;padding:5.5rem 1.5rem 3rem;gap:0}
   .hero-weather{display:none}
   .scroll-hint{display:none}
 
   /* Sections */
-  .section-wrap{padding:4.5rem 1.5rem}
+  .section-wrap{padding:4rem 1.5rem}
 
   /* About */
   #about{grid-template-columns:1fr;gap:2.5rem}
-  .about-card{max-width:100%}
 
-  /* Skills */
+  /* Skills — 2 col */
   .skills-grid{grid-template-columns:repeat(2,1fr)}
 
-  /* Projects */
+  /* Projects — 2 col */
   .projects-grid{grid-template-columns:repeat(2,1fr)}
 
-  /* Season switcher */
+  /* Footer */
+  footer{flex-direction:column;gap:0.4rem;text-align:center;padding:1.25rem 1.5rem}
+
+  /* ── Fixed element stack on tablet (right side) ── */
+  /* Season switcher → right side vertical strip */
   #season-switcher{
-    top:auto;bottom:6rem;right:0;transform:none;
-    flex-direction:row;border-radius:100px 0 0 100px;
+    top:50%;bottom:auto;right:0;transform:translateY(-50%);
+    flex-direction:column;border-radius:10px 0 0 10px;
     border:1px solid var(--border);border-right:none;
   }
   .sw-label{display:none}
   .season-btn .s-name{display:none}
-  .season-btn{padding:0.65rem 0.75rem}
+  .season-btn{padding:0.6rem 0.7rem}
 
-  /* Weather badge */
-  #weather-badge{top:auto;bottom:1rem;left:50%;transform:translateX(-50%)}
+  /* Weather badge stays top-center */
+  #weather-badge{top:1rem;bottom:auto;left:50%;transform:translateX(-50%)}
 
-  /* FABs */
-  #fab-group{bottom:8rem;left:1rem;gap:0.6rem}
-
-  /* Footer */
-  footer{flex-direction:column;gap:0.4rem;text-align:center;padding:1.25rem 1.5rem}
+  /* Auto badge stays bottom-center */
+  #auto-badge{bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(8px)}
+  #auto-badge.show{transform:translateX(-50%) translateY(0)}
 }
 
 /* ═══════════════════════════════
-   RESPONSIVE — MOBILE 600px
+   MOBILE — 600px
 ═══════════════════════════════ */
 @media (max-width:600px){
   /* Nav */
-  #main-nav{padding:0.85rem 1.25rem}
-  .nav-logo{font-size:1rem}
+  #main-nav{padding:0.75rem 1rem}
+  .nav-logo{font-size:0.95rem}
 
   /* Hero */
-  #hero{padding:5rem 1.25rem 2.5rem}
-  .hero-name{font-size:clamp(2rem,10vw,2.6rem)}
-  .hero-actions{flex-direction:column}
+  #hero{padding:4.75rem 1rem 2.5rem}
+  .hero-name{font-size:clamp(1.9rem,9vw,2.5rem)}
+  .hero-kicker{margin-bottom:1.25rem}
+  .hero-desc{font-size:0.9rem;margin-bottom:2rem}
+  .hero-actions{flex-direction:column;gap:0.75rem}
   .hero-actions .btn{width:100%;justify-content:center}
 
-  /* Skills */
-  .skills-grid{grid-template-columns:1fr}
+  /* Sections */
+  .section-wrap{padding:3rem 1rem}
 
-  /* Projects */
+  /* About */
+  .about-card{padding:1.5rem 1.25rem}
+  .stat-grid{grid-template-columns:repeat(3,1fr);gap:0.5rem}
+  .stat-item{padding:0.7rem 0.4rem}
+  .stat-item .sv{font-size:1.2rem}
+
+  /* Skills — 1 col */
+  .skills-grid{grid-template-columns:1fr}
+  .skill-card{padding:1.4rem}
+
+  /* Projects — 1 col */
   .projects-grid{grid-template-columns:1fr}
 
-  /* Form */
+  /* Contact / Form */
+  .section-wrap#contact .section-heading{font-size:clamp(1.7rem,7vw,2.2rem)}
+  .contact-form{padding:1.25rem 1rem}
   .form-row{grid-template-columns:1fr}
-  .contact-form{padding:1.5rem 1.25rem}
-  .btn-whatsapp,.btn-call{width:100%;justify-content:center}
-  .contact-quick{flex-direction:column;align-items:stretch}
-  .contact-actions{flex-direction:column;align-items:center}
-
-  /* Weather badge */
-  #weather-badge{font-size:0.65rem;padding:0.35rem 0.75rem 0.35rem 0.6rem}
-
-  /* FABs */
-  #fab-group{bottom:6rem;left:1rem}
-  .fab{max-width:46px}
-  .fab-icon{width:46px;height:46px;font-size:1.15rem}
-  .fab:hover{max-width:180px}
-
-  /* Auto badge */
-  #auto-badge{font-size:0.65rem;bottom:1rem}
-
-  /* Season switcher */
-  #season-switcher{bottom:4.5rem}
-
-  /* Section padding */
-  .section-wrap{padding:3.5rem 1.25rem}
-
-  /* Stat grid */
-  .stat-grid{grid-template-columns:repeat(3,1fr)}
+  .contact-actions{flex-direction:column;align-items:stretch}
+  .contact-actions .btn{width:100%;justify-content:center}
+  .social-row{gap:0.5rem}
+  .social-link{font-size:0.68rem;padding:0.4rem 0.8rem}
 
   /* Footer */
-  footer{padding:1rem 1.25rem}
+  footer{padding:1rem}
+  footer p{font-size:0.65rem}
+
+  /* ── Fixed elements — no-collision layout ── */
+
+  /* Weather badge — top center (smaller) */
+  #weather-badge{
+    top:0.75rem;bottom:auto;
+    left:50%;transform:translateX(-50%);
+    font-size:0.62rem;padding:0.3rem 0.7rem 0.3rem 0.55rem;gap:0.35rem;
+  }
+  #weather-badge .wb-city{display:none}
+
+  /* Season switcher — stays right-center vertical */
+  #season-switcher{
+    top:50%;bottom:auto;right:0;transform:translateY(-50%);
+    flex-direction:column;border-radius:8px 0 0 8px;
+  }
+  .season-btn{padding:0.55rem 0.6rem}
+  .season-btn .s-icon{font-size:1.1rem}
+
+  /* Auto badge — below weather badge */
+  #auto-badge{
+    bottom:auto;top:5.5rem;
+    left:50%;transform:translateX(-50%) translateY(-8px);
+    font-size:0.62rem;padding:0.3rem 0.85rem;
+    white-space:normal;text-align:center;max-width:220px;
+  }
+  #auto-badge.show{transform:translateX(-50%) translateY(0)}
 }
 
 /* ═══════════════════════════════
    REDUCED MOTION
 ═══════════════════════════════ */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
+  *,*::before,*::after{
+    animation-duration:0.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:0.01ms!important;
+  }
   .reveal{opacity:1;transform:none}
+  body::after{animation:none}
 }
 </style>
 </head>
@@ -1122,24 +1139,6 @@ footer p span{color:var(--a1);transition:color 1.2s}
         <a href="#" class="btn btn-outline">Download CV</a>
       </div>
 
-      <!-- WhatsApp & Call quick-connect -->
-      <div class="contact-quick reveal reveal-d3" aria-label="Quick contact options">
-        <a href="https://wa.me/919177519795?text=Hi%20Sai%20Charan%2C%20I%20came%20across%20your%20portfolio%20and%20would%20love%20to%20discuss%20a%20project!"
-           class="btn-whatsapp"
-           target="_blank"
-           rel="noopener noreferrer"
-           aria-label="Chat on WhatsApp with Sai Charan">
-          <svg class="btn-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.73.443 3.357 1.219 4.773L2 22l5.39-1.198A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.521 2 11.998 2zm0 18c-1.618 0-3.132-.437-4.437-1.2l-.319-.189-3.197.71.726-3.113-.208-.332A7.956 7.956 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.58 8-7.998 8z"/></svg>
-          WhatsApp Me
-        </a>
-        <a href="tel:+919177519795"
-           class="btn-call"
-           aria-label="Call Sai Charan at +91 91775 19795">
-          <svg class="btn-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          Call Me
-        </a>
-      </div>
-
       <div class="social-row reveal reveal-d3" aria-label="Social media links">
         <a href="#" class="social-link" aria-label="GitHub profile">⌥ GitHub</a>
         <a href="#" class="social-link" aria-label="LinkedIn profile">in LinkedIn</a>
@@ -1150,28 +1149,6 @@ footer p span{color:var(--a1);transition:color 1.2s}
   </section>
 
 </main>
-
-<!-- Floating WhatsApp + Call FABs (visible on all pages) -->
-<div id="fab-group" aria-label="Quick contact buttons">
-  <a href="https://wa.me/919177519795?text=Hi%20Sai%20Charan%2C%20I%20came%20across%20your%20portfolio%20and%20would%20love%20to%20discuss%20a%20project!"
-     class="fab fab-wa"
-     target="_blank"
-     rel="noopener noreferrer"
-     aria-label="Chat on WhatsApp with Sai Charan">
-    <span class="fab-icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.73.443 3.357 1.219 4.773L2 22l5.39-1.198A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.521 2 11.998 2zm0 18c-1.618 0-3.132-.437-4.437-1.2l-.319-.189-3.197.71.726-3.113-.208-.332A7.956 7.956 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.58 8-7.998 8z"/></svg>
-    </span>
-    <span class="fab-label">WhatsApp</span>
-  </a>
-  <a href="tel:+919177519795"
-     class="fab fab-call"
-     aria-label="Call Sai Charan at +91 91775 19795">
-    <span class="fab-icon" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-    </span>
-    <span class="fab-label">+91 91775 19795</span>
-  </a>
-</div>
 
 <!-- FOOTER -->
 <footer>
@@ -1191,21 +1168,108 @@ footer p span{color:var(--a1);transition:color 1.2s}
    Autumn  : Oct–Nov  (10,11)
    Winter  : Dec–Feb  (12,1,2)
 ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   COUNTRY-AWARE SEASON DETECTION
+   Uses ipapi.co (free, no key) → country code →
+   hemisphere / climate zone → correct local season
+══════════════════════════════════════════════════ */
+
 const SEASONS = {
-  summer: { label: '☀ Summer',  eyebrow: 'Shipping hot new features',   months: [3,4,5,6],  wlabel: '☀ Summer'  },
-  rain:   { label: '🌧 Monsoon', eyebrow: 'Building through the storm',  months: [7,8,9],    wlabel: '🌧 Monsoon' },
-  autumn: { label: '🍂 Autumn',  eyebrow: 'Harvesting great code',       months: [10,11],    wlabel: '🍂 Autumn'  },
-  winter: { label: '❄ Winter',  eyebrow: 'Crafting cool interfaces',     months: [12,1,2],   wlabel: '❄ Winter'  },
+  summer: { label: '☀ Summer',  eyebrow: 'Shipping hot new features',  months: [3,4,5,6],  wlabel: '☀ Summer'  },
+  rain:   { label: '🌧 Monsoon', eyebrow: 'Building through the storm', months: [7,8,9],    wlabel: '🌧 Monsoon' },
+  autumn: { label: '🍂 Autumn',  eyebrow: 'Harvesting great code',      months: [10,11],    wlabel: '🍂 Autumn'  },
+  winter: { label: '❄ Winter',  eyebrow: 'Crafting cool interfaces',    months: [12,1,2],   wlabel: '❄ Winter'  },
 };
 
-function getIndianSeason() {
-  // Uses IST (UTC+5:30) so the detection is correct even for users in other timezones
-  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  const m   = now.getMonth() + 1; // 1–12
-  for (const [key, val] of Object.entries(SEASONS)) {
-    if (val.months.includes(m)) return key;
+/* ── Climate zone mapping by country code ──────────
+   northern_monsoon : South/SE Asia — monsoon July-Sep
+   northern_temperate : Europe/N.America/N.Asia — standard 4 seasons
+   southern_temperate : Australia/S.Africa/S.America — flipped seasons
+   tropical : Near-equator — always summer or rain by WMO data
+   arid : Middle East / N.Africa — summer-heavy
+──────────────────────────────────────────────── */
+const CLIMATE_ZONES = {
+  // South Asia — monsoon
+  IN:'northern_monsoon', PK:'northern_monsoon', BD:'northern_monsoon',
+  LK:'tropical', NP:'northern_monsoon', BT:'northern_monsoon', MM:'northern_monsoon',
+  // SE Asia
+  TH:'tropical', VN:'tropical', PH:'tropical', ID:'tropical',
+  MY:'tropical', SG:'tropical', KH:'tropical', LA:'tropical',
+  // East Asia
+  CN:'northern_temperate', JP:'northern_temperate', KR:'northern_temperate',
+  TW:'northern_temperate', HK:'northern_temperate',
+  // Middle East / N.Africa
+  AE:'arid', SA:'arid', QA:'arid', KW:'arid', BH:'arid', OM:'arid',
+  EG:'arid', LY:'arid', TN:'arid', MA:'arid', DZ:'arid', IQ:'arid', IR:'arid',
+  // Europe
+  GB:'northern_temperate', DE:'northern_temperate', FR:'northern_temperate',
+  IT:'northern_temperate', ES:'northern_temperate', PT:'northern_temperate',
+  NL:'northern_temperate', BE:'northern_temperate', SE:'northern_temperate',
+  NO:'northern_temperate', DK:'northern_temperate', FI:'northern_temperate',
+  CH:'northern_temperate', AT:'northern_temperate', PL:'northern_temperate',
+  RU:'northern_temperate', UA:'northern_temperate', GR:'northern_temperate',
+  // North America
+  US:'northern_temperate', CA:'northern_temperate', MX:'northern_temperate',
+  // South America — flipped
+  BR:'southern_temperate', AR:'southern_temperate', CL:'southern_temperate',
+  CO:'tropical', PE:'southern_temperate', VE:'tropical',
+  // Africa
+  ZA:'southern_temperate', NG:'tropical', KE:'tropical', ET:'tropical',
+  GH:'tropical', TZ:'tropical', UG:'tropical', ZM:'southern_temperate',
+  // Oceania — flipped
+  AU:'southern_temperate', NZ:'southern_temperate',
+};
+
+/* Season logic per climate zone, given month 1–12 */
+function getSeasonForZone(zone, month) {
+  switch (zone) {
+
+    case 'northern_monsoon':
+      if ([3,4,5,6].includes(month))  return 'summer';
+      if ([7,8,9].includes(month))    return 'rain';
+      if ([10,11].includes(month))    return 'autumn';
+      return 'winter'; // Dec, Jan, Feb
+
+    case 'northern_temperate':
+      if ([3,4,5].includes(month))    return 'summer';  // Spring → summer theme
+      if ([6,7,8].includes(month))    return 'summer';
+      if ([9,10,11].includes(month))  return 'autumn';
+      return 'winter'; // Dec, Jan, Feb
+
+    case 'southern_temperate':
+      // Flip: Dec-Feb is summer, Jun-Aug is winter
+      if ([12,1,2].includes(month))   return 'summer';
+      if ([3,4,5].includes(month))    return 'autumn';
+      if ([6,7,8].includes(month))    return 'winter';
+      return 'summer'; // Sep-Nov spring → summer
+
+    case 'tropical':
+      // Roughly: wet and dry seasons — use rain for wet months
+      if ([5,6,7,8,9,10].includes(month)) return 'rain';
+      return 'summer';
+
+    case 'arid':
+      // Hot most of year, mild winter Dec-Feb
+      if ([12,1,2].includes(month))  return 'winter';
+      if ([3,4].includes(month))     return 'autumn';
+      return 'summer';
+
+    default:
+      // Fallback: India logic
+      if ([3,4,5,6].includes(month)) return 'summer';
+      if ([7,8,9].includes(month))   return 'rain';
+      if ([10,11].includes(month))   return 'autumn';
+      return 'winter';
   }
-  return 'winter';
+}
+
+/* Detect season from local timezone as instant fallback */
+function getLocalSeason() {
+  // Guess hemisphere from timezone offset: negative = likely southern
+  const offset = new Date().getTimezoneOffset();
+  const month  = new Date().getMonth() + 1;
+  const zone   = offset > 300 ? 'southern_temperate' : 'northern_monsoon'; // rough
+  return getSeasonForZone(zone, month);
 }
 
 /* ── Canvas ── */
@@ -1555,32 +1619,27 @@ function drawIcon(season) {
   }
 }
 
-/* ══════════════════════════════════════════════════
-   SEASON STATE MANAGEMENT
-══════════════════════════════════════════════════ */
-let currentSeason = getIndianSeason();
+
+/* ── Init: detect country via IP, pick correct local season ── */
+let currentSeason = getLocalSeason(); // instant fallback while fetching
 let badgeTimer;
 
-function setSeason(season, manual = false) {
+function setSeason(season, manual = false, countryLabel = null) {
   document.body.classList.remove('winter','rain','summer','autumn');
   document.body.classList.add(season);
   currentSeason = season;
 
-  // Update buttons
+  // Buttons
   document.querySelectorAll('.season-btn').forEach(btn => {
     const active = btn.dataset.season === season;
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-pressed', String(active));
   });
 
-  // Particles
+  // Particles + hero labels
   buildParticles(season);
-
-  // Hero eyebrow
   const ey = document.getElementById('hero-eyebrow');
   if (ey) ey.textContent = SEASONS[season].eyebrow;
-
-  // Weather label
   const wl = document.getElementById('weather-label-text');
   if (wl) wl.textContent = SEASONS[season].wlabel;
 
@@ -1589,19 +1648,16 @@ function setSeason(season, manual = false) {
   const badge = document.getElementById('auto-badge');
   if (manual) {
     badge.textContent = '🎛 Manually set: ' + SEASONS[season].label;
+  } else if (countryLabel) {
+    badge.textContent = `📍 ${countryLabel} → ${SEASONS[season].label}`;
   } else {
-    badge.textContent = '📍 India auto-detected: ' + SEASONS[season].label;
+    badge.textContent = '📍 Auto-detected: ' + SEASONS[season].label;
   }
   badge.classList.add('show');
-  badgeTimer = setTimeout(() => badge.classList.remove('show'), 3200);
+  badgeTimer = setTimeout(() => badge.classList.remove('show'), 3500);
 
-  // Save manual preference to sessionStorage only (clears on refresh/new tab)
-  // so every fresh page load always re-detects the real Indian season
-  try {
-    if (manual) {
-      sessionStorage.setItem('manual_season', season);
-    }
-  } catch(_) {}
+  // sessionStorage — manual only, cleared on refresh
+  try { if (manual) sessionStorage.setItem('manual_season', season); } catch(_) {}
 }
 
 /* Button listeners */
@@ -1609,7 +1665,7 @@ document.querySelectorAll('.season-btn').forEach(btn => {
   btn.addEventListener('click', () => setSeason(btn.dataset.season, true));
 });
 
-/* Keyboard: arrow keys in the switcher */
+/* Keyboard navigation in switcher */
 const switcher = document.getElementById('season-switcher');
 switcher.addEventListener('keydown', e => {
   const btns = [...switcher.querySelectorAll('.season-btn')];
@@ -1619,20 +1675,39 @@ switcher.addEventListener('keydown', e => {
   if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  { e.preventDefault(); btns[(idx-1+btns.length)%btns.length].focus(); }
 });
 
-/* ── Init: always auto-detect Indian season on every page load / refresh ── */
-// Manual choice (sessionStorage) only persists within the same tab session,
-// not across refreshes — so the site always opens with the correct live season.
-let startSeason = getIndianSeason(); // real India season right now
-setSeason(startSeason, false);       // apply it, show "India auto-detected" badge
+/* ── Async country detection ── */
+(async function detectCountryAndSeason() {
+  // Apply instant local fallback first so the page isn't blank
+  setSeason(getLocalSeason(), false);
+
+  try {
+    // ipapi.co — free, no key, 1000 req/day
+    const res  = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
+    const data = await res.json();
+
+    const code    = (data.country_code || '').toUpperCase();
+    const country = data.country_name || code;
+    const tz      = data.timezone || '';
+    const month   = new Date(new Date().toLocaleString('en-US', { timeZone: tz || undefined })).getMonth() + 1;
+
+    const zone   = CLIMATE_ZONES[code] || 'northern_temperate';
+    const season = getSeasonForZone(zone, month);
+
+    setSeason(season, false, country);
+
+  } catch (_) {
+    // Silently keep the local fallback — no visible error
+  }
+})();
 
 /* ══════════════════════════════════════════════════
    MAIN RENDER LOOP
 ══════════════════════════════════════════════════ */
 const BG_OVERLAYS = {
-  winter: ['rgba(4,8,15,0.88)',  'rgba(7,13,28,0.75)', 'rgba(12,20,40,0.5)'],
-  rain:   ['rgba(3,10,6,0.9)',   'rgba(5,14,9,0.78)',  'rgba(8,22,13,0.5)'],
-  summer: ['rgba(10,5,0,0.9)',   'rgba(17,8,0,0.76)',  'rgba(26,13,0,0.48)'],
-  autumn: ['rgba(8,4,0,0.9)',    'rgba(15,7,0,0.76)',  'rgba(23,12,0,0.48)'],
+  winter: ['rgba(15,31,61,0.82)',  'rgba(22,36,68,0.70)', 'rgba(12,28,50,0.55)'],
+  rain:   ['rgba(10,31,20,0.84)',  'rgba(15,42,28,0.72)', 'rgba(8,24,14,0.55)'],
+  summer: ['rgba(28,16,0,0.84)',   'rgba(40,24,0,0.72)',  'rgba(20,10,0,0.55)'],
+  autumn: ['rgba(30,14,0,0.84)',   'rgba(44,22,0,0.72)',  'rgba(22,8,0,0.55)'],
 };
 
 function render() {
