@@ -28,13 +28,13 @@ body.winter {
 }
 /* MONSOON — deep teal × vivid green × seafoam */
 body.rain {
-  --bg0:#0a1f14; --bg1:#0f2a1c; --bg2:#163824; --bg3:#1e4a30;
-  --a1:#30e890; --a2:#90ffcc; --a3:#12c870;
-  --text:#d4f8ea; --text2:#52b87a;
-  --border:rgba(48,232,144,0.22);
-  --glow:0 0 32px rgba(48,232,144,0.35);
-  --glow2:0 0 60px rgba(48,232,144,0.16);
-  --grad-a:#0a1f14; --grad-b:#0d2e1a; --grad-c:#081a10;
+  --bg0:#0d0d2b; --bg1:#111133; --bg2:#16163e; --bg3:#1d1d52;
+  --a1:#a78bfa; --a2:#ddd6fe; --a3:#7c3aed;
+  --text:#ede9fe; --text2:#7c6faa;
+  --border:rgba(167,139,250,0.22);
+  --glow:0 0 32px rgba(167,139,250,0.4);
+  --glow2:0 0 60px rgba(167,139,250,0.2);
+  --grad-a:#0d0d2b; --grad-b:#130f3a; --grad-c:#08081e;
 }
 /* SUMMER — warm brown × vivid amber × golden */
 body.summer {
@@ -388,6 +388,80 @@ nav ul a:focus-visible{outline:2px solid var(--a1);outline-offset:4px;border-rad
 .btn-outline:hover{border-color:var(--a1);background:rgba(255,255,255,0.04);transform:translateY(-2px);box-shadow:var(--glow)}
 .btn-icon{font-size:0.95rem}
 
+
+/* ═══════════════════════════════
+   FLOATING WHATSAPP + CALL FABs
+═══════════════════════════════ */
+#fab-wrap {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+.fab-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+  position: relative;
+}
+.fab-btn:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+.fab-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.fab-btn svg { width: 20px; height: 20px; display: block; }
+.fab-wa  { background: #25D366; }
+.fab-call { background: var(--a1); transition: background 1.2s; }
+
+/* Tooltip */
+.fab-btn::before {
+  content: attr(data-tip);
+  position: absolute;
+  right: 60px;
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  backdrop-filter: blur(8px);
+}
+.fab-btn:hover::before { opacity: 1; }
+
+/* Pulse ring on WhatsApp */
+.fab-wa::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(37,211,102,0.5);
+  animation: fabPulse 2s ease-out infinite;
+}
+@keyframes fabPulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@media (max-width: 600px) {
+  #fab-wrap { bottom: 1.25rem; right: 1rem; gap: 0.6rem; }
+  .fab-btn  { width: 38px; height: 38px; }
+  .fab-btn svg { width: 18px; height: 18px; }
+  .fab-btn::before { display: none; }
+}
 
 /* ═══════════════════════════════
    MARQUEE STRIP
@@ -862,7 +936,7 @@ footer p span{color:var(--a1);transition:color 1.2s}
       <div class="live-weather" id="live-weather" role="region" aria-label="Live weather in Hyderabad">
         <span class="lw-loading" id="lw-loading">Fetching weather…</span>
         <div id="lw-content" style="display:none;width:100%;text-align:center;">
-          <p class="lw-location">Hyderabad, IN</p>
+          <p class="lw-location"><span id="lw-location-name">Detecting…</span></p>
           <div class="lw-temp-row">
             <span class="lw-temp" id="lw-temp">--</span>
             <span class="lw-unit">°C</span>
@@ -1319,46 +1393,160 @@ class SnowFlake {
   }
 }
 
-/* ── RAIN (Spring) ── */
+/* ── THUNDERSTORM ENGINE ── */
+
+// Heavy rain drop
 class RainDrop {
   constructor() { this.init(true); }
   init(rand = false) {
-    this.x   = Math.random() * W;
+    this.x   = Math.random() * (W + 200) - 100;
     this.y   = rand ? Math.random() * H : -20;
-    this.len = Math.random() * 16 + 7;
-    this.vy  = Math.random() * 9 + 11;
-    this.op  = Math.random() * 0.38 + 0.12;
-    this.sx  = false;
-    this.sr  = 0;
-    this.so  = 0;
+    this.len = Math.random() * 22 + 10;
+    this.vy  = Math.random() * 14 + 14;
+    this.vx  = -this.vy * 0.18; // slight angle left
+    this.op  = Math.random() * 0.5 + 0.15;
+    this.w   = Math.random() < 0.3 ? 1.4 : 0.8; // some thicker drops
+    this.sx  = false; this.sr = 0; this.so = 0;
   }
   tick() {
-    this.x += this.vy * 0.08;
+    this.x += this.vx;
     this.y += this.vy;
-    if (this.y > H - 3) {
-      if (!this.sx) { this.sx = true; this.sr = 1; this.so = 0.55; }
-      this.sr  += 0.9;
-      this.so  -= 0.055;
+    if (this.y > H - 2) {
+      if (!this.sx) { this.sx = true; this.sr = 1; this.so = 0.6; }
+      this.sr += 1.1; this.so -= 0.06;
       if (this.so <= 0) this.init();
     }
   }
   draw() {
     ctx.save();
     ctx.globalAlpha = this.op;
-    ctx.strokeStyle = '#5affc0';
-    ctx.lineWidth   = 1.1;
-    ctx.shadowBlur  = 4;
-    ctx.shadowColor = '#00e676';
+    ctx.strokeStyle = '#c4b5fd';
+    ctx.lineWidth   = this.w;
+    ctx.shadowBlur  = 3;
+    ctx.shadowColor = '#a78bfa';
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
-    ctx.lineTo(this.x - this.vy * 0.06 * this.len, this.y - this.len);
+    ctx.lineTo(this.x - this.vx * this.len / this.vy, this.y - this.len);
     ctx.stroke();
+    // Splash ripple
     if (this.sx && this.so > 0) {
-      ctx.globalAlpha = this.so * 0.4;
+      ctx.globalAlpha = this.so * 0.35;
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth   = 0.8;
       ctx.beginPath();
-      ctx.arc(this.x, H - 3, this.sr, 0, Math.PI * 2);
+      ctx.ellipse(this.x, H - 2, this.sr * 1.6, this.sr * 0.5, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
+    ctx.restore();
+  }
+}
+
+// Lightning bolt
+class Lightning {
+  constructor() { this.reset(); }
+  reset() {
+    this.active  = false;
+    this.timer   = Math.random() * 180 + 60; // frames until next strike
+    this.x       = Math.random() * W;
+    this.segments= [];
+    this.alpha   = 0;
+    this.flash   = 0; // sky flash intensity
+  }
+  generateBolt() {
+    this.segments = [];
+    let x = this.x, y = 0;
+    const targetY = H * (0.45 + Math.random() * 0.4);
+    while (y < targetY) {
+      const ny = y + Math.random() * 40 + 20;
+      const nx = x + (Math.random() - 0.5) * 80;
+      this.segments.push({ x1:x, y1:y, x2:nx, y2:ny });
+      // Branch
+      if (Math.random() < 0.3) {
+        const bx = nx + (Math.random() - 0.5) * 60;
+        const by = ny + Math.random() * 50 + 20;
+        this.segments.push({ x1:nx, y1:ny, x2:bx, y2:by, branch:true });
+      }
+      x = nx; y = ny;
+    }
+    this.alpha = 1;
+    this.flash = 0.18; // trigger sky flash
+    this.active = true;
+  }
+  tick() {
+    if (!this.active) {
+      this.timer--;
+      if (this.timer <= 0) {
+        this.x = Math.random() * W;
+        this.generateBolt();
+      }
+    } else {
+      this.alpha -= 0.055;
+      this.flash  = Math.max(0, this.flash - 0.012);
+      if (this.alpha <= 0) { this.active = false; this.timer = Math.random() * 220 + 80; }
+    }
+  }
+  draw() {
+    if (!this.active || this.alpha <= 0) return;
+    // Sky flash overlay
+    if (this.flash > 0) {
+      ctx.save();
+      ctx.globalAlpha = this.flash;
+      ctx.fillStyle   = '#ddd6fe';
+      ctx.fillRect(0, 0, W, H * 0.5);
+      ctx.restore();
+    }
+    // Bolt
+    ctx.save();
+    this.segments.forEach(s => {
+      ctx.globalAlpha = s.branch ? this.alpha * 0.55 : this.alpha;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth   = s.branch ? 1.2 : 2.5;
+      ctx.shadowBlur  = s.branch ? 12 : 28;
+      ctx.shadowColor = '#c4b5fd';
+      ctx.beginPath();
+      ctx.moveTo(s.x1, s.y1);
+      ctx.lineTo(s.x2, s.y2);
+      ctx.stroke();
+      // Inner white core
+      ctx.globalAlpha = this.alpha * 0.7;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth   = s.branch ? 0.5 : 1.2;
+      ctx.shadowBlur  = 0;
+      ctx.beginPath();
+      ctx.moveTo(s.x1, s.y1);
+      ctx.lineTo(s.x2, s.y2);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+}
+
+// Storm cloud puff
+class StormCloud {
+  constructor() {
+    this.x  = Math.random() * W;
+    this.y  = Math.random() * H * 0.2 + 10;
+    this.w  = Math.random() * 180 + 100;
+    this.h  = Math.random() * 60 + 30;
+    this.op = Math.random() * 0.12 + 0.04;
+    this.vx = (Math.random() - 0.5) * 0.15;
+  }
+  tick() {
+    this.x += this.vx;
+    if (this.x > W + this.w) this.x = -this.w;
+    if (this.x < -this.w)    this.x = W + this.w;
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.op;
+    const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.w * 0.5);
+    g.addColorStop(0,   'rgba(120,100,200,0.8)');
+    g.addColorStop(0.5, 'rgba(60,40,120,0.4)');
+    g.addColorStop(1,   'transparent');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(this.x, this.y, this.w * 0.5, this.h * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 }
@@ -1484,7 +1672,9 @@ function buildParticles(season) {
   if (season === 'winter') {
     for (let i = 0; i < 170; i++) particles.push(new SnowFlake());
   } else if (season === 'rain') {
-    for (let i = 0; i < 240; i++) particles.push(new RainDrop());
+    for (let i = 0; i < 280; i++) particles.push(new RainDrop());
+    for (let i = 0; i < 4;   i++) particles.push(new Lightning());
+    for (let i = 0; i < 8;   i++) particles.push(new StormCloud());
   } else if (season === 'summer') {
     for (let i = 0; i < 20;  i++) particles.push(new SunRay());
     for (let i = 0; i < 90;  i++) particles.push(new Ember());
@@ -1524,32 +1714,66 @@ function drawIcon(season) {
     ictx.beginPath(); ictx.arc(0,0,7,0,Math.PI*2); ictx.fill();
     ictx.restore();
 
+
   } else if (season === 'rain') {
     ictx.save();
-    ictx.shadowBlur  = 12;
-    ictx.shadowColor = '#4fffb0';
-    // Cloud
-    ictx.fillStyle   = 'rgba(79,255,176,0.15)';
-    ictx.strokeStyle = '#4fffb0';
-    ictx.lineWidth   = 1.8;
+    const t = Date.now();
+
+    // Dark storm cloud — purple glow
+    ictx.shadowBlur  = 20;
+    ictx.shadowColor = '#a78bfa';
+
+    // Cloud body gradient
+    const cg = ictx.createRadialGradient(cx-10, cy-24, 5, cx, cy-18, 55);
+    cg.addColorStop(0, 'rgba(90,70,160,0.95)');
+    cg.addColorStop(1, 'rgba(30,20,70,0.7)');
+    ictx.fillStyle = cg;
     ictx.beginPath();
-    ictx.arc(cx-18, cy-22, 25, 0, Math.PI*2);
-    ictx.arc(cx+10, cy-30, 20, 0, Math.PI*2);
-    ictx.arc(cx+28, cy-12, 18, 0, Math.PI*2);
-    ictx.arc(cx-4,  cy-2,  22, 0, Math.PI*2);
-    ictx.fill(); ictx.stroke();
-    // Drops
-    const t = Date.now() / 380;
+    ictx.arc(cx-22, cy-20, 26, 0, Math.PI*2);
+    ictx.arc(cx+5,  cy-30, 22, 0, Math.PI*2);
+    ictx.arc(cx+26, cy-14, 20, 0, Math.PI*2);
+    ictx.arc(cx-2,  cy-4,  24, 0, Math.PI*2);
+    ictx.fill();
+    // Cloud edge stroke
+    ictx.strokeStyle = 'rgba(167,139,250,0.5)';
+    ictx.lineWidth   = 1.5;
+    ictx.stroke();
+
+    // Animated lightning bolt
+    const blink = Math.sin(t / 300) > 0.6;
+    ictx.globalAlpha = blink ? 1 : 0.35 + Math.abs(Math.sin(t / 600)) * 0.25;
+    ictx.shadowBlur  = blink ? 30 : 10;
+    ictx.shadowColor = '#fff';
+    ictx.strokeStyle = blink ? '#ffffff' : '#ddd6fe';
+    ictx.lineWidth   = blink ? 3 : 1.8;
+    ictx.beginPath();
+    ictx.moveTo(cx-2,  cy+10);
+    ictx.lineTo(cx-12, cy+32);
+    ictx.lineTo(cx-4,  cy+32);
+    ictx.lineTo(cx-16, cy+58);
+    ictx.lineTo(cx+2,  cy+36);
+    ictx.lineTo(cx-6,  cy+36);
+    ictx.lineTo(cx+8,  cy+10);
+    ictx.closePath();
+    ictx.fillStyle = blink ? '#ffffff' : '#c4b5fd';
+    ictx.fill();
+    ictx.stroke();
+
+    // Falling rain drops
+    ictx.globalAlpha = 0.7;
     for (let i = 0; i < 5; i++) {
-      const frac = (t + i * 0.38) % 1;
-      const dx = cx - 36 + i * 18;
-      const dy = cy + 22 + frac * 46;
-      ictx.globalAlpha = 0.85 - frac * 0.6;
-      ictx.strokeStyle = '#4fffb0';
-      ictx.lineWidth   = 1.6;
+      const frac = ((t / 350) + i * 0.3) % 1;
+      if (i === 1 || i === 3) continue; // skip middle — bolt is there
+      const dx = cx - 38 + i * 22;
+      const dy = cy + 20 + frac * 44;
+      ictx.globalAlpha = 0.75 - frac * 0.55;
+      ictx.strokeStyle = '#c4b5fd';
+      ictx.lineWidth   = 1.4;
+      ictx.shadowBlur  = 4;
+      ictx.shadowColor = '#a78bfa';
       ictx.beginPath();
-      ictx.moveTo(dx,   dy-7);
-      ictx.lineTo(dx+3, dy+7);
+      ictx.moveTo(dx - 2, dy - 8);
+      ictx.lineTo(dx + 2, dy + 8);
       ictx.stroke();
     }
     ictx.restore();
@@ -1705,7 +1929,7 @@ switcher.addEventListener('keydown', e => {
 ══════════════════════════════════════════════════ */
 const BG_OVERLAYS = {
   winter: ['rgba(15,31,61,0.82)',  'rgba(22,36,68,0.70)', 'rgba(12,28,50,0.55)'],
-  rain:   ['rgba(10,31,20,0.84)',  'rgba(15,42,28,0.72)', 'rgba(8,24,14,0.55)'],
+  rain:   ['rgba(13,13,43,0.88)',  'rgba(17,15,50,0.78)', 'rgba(8,8,30,0.62)'],
   summer: ['rgba(28,16,0,0.84)',   'rgba(40,24,0,0.72)',  'rgba(20,10,0,0.55)'],
   autumn: ['rgba(30,14,0,0.84)',   'rgba(44,22,0,0.72)',  'rgba(22,8,0,0.55)'],
 };
@@ -1786,78 +2010,126 @@ document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 // Year
 document.getElementById('year').textContent = new Date().getFullYear();
 
+
 /* ══════════════════════════════════════════════════
-   LIVE WEATHER — Open-Meteo (free, no API key)
-   Hyderabad, India: lat 17.3850 lon 78.4867
+   LIVE WEATHER — Auto-detect city via Geolocation
+   → Open-Meteo for temperature (no API key needed)
+   → Nominatim for reverse geocoding (no API key)
 ══════════════════════════════════════════════════ */
 (function () {
   const WMO_CODES = {
-    0:  { label: 'Clear Sky',        icon: '☀️' },
-    1:  { label: 'Mostly Clear',     icon: '🌤️' },
-    2:  { label: 'Partly Cloudy',    icon: '⛅' },
-    3:  { label: 'Overcast',         icon: '☁️' },
-    45: { label: 'Foggy',            icon: '🌫️' },
-    48: { label: 'Icy Fog',          icon: '🌫️' },
-    51: { label: 'Light Drizzle',    icon: '🌦️' },
-    53: { label: 'Drizzle',          icon: '🌦️' },
-    55: { label: 'Heavy Drizzle',    icon: '🌧️' },
-    61: { label: 'Light Rain',       icon: '🌧️' },
-    63: { label: 'Rain',             icon: '🌧️' },
-    65: { label: 'Heavy Rain',       icon: '🌧️' },
-    71: { label: 'Light Snow',       icon: '🌨️' },
-    73: { label: 'Snow',             icon: '❄️' },
-    75: { label: 'Heavy Snow',       icon: '❄️' },
-    80: { label: 'Rain Showers',     icon: '🌦️' },
-    81: { label: 'Showers',          icon: '🌧️' },
-    82: { label: 'Heavy Showers',    icon: '⛈️' },
-    95: { label: 'Thunderstorm',     icon: '⛈️' },
-    99: { label: 'Severe Storm',     icon: '🌩️' },
+    0:  { label: 'Clear Sky',     icon: '☀️' },
+    1:  { label: 'Mostly Clear',  icon: '🌤️' },
+    2:  { label: 'Partly Cloudy', icon: '⛅' },
+    3:  { label: 'Overcast',      icon: '☁️' },
+    45: { label: 'Foggy',         icon: '🌫️' },
+    48: { label: 'Icy Fog',       icon: '🌫️' },
+    51: { label: 'Light Drizzle', icon: '🌦️' },
+    53: { label: 'Drizzle',       icon: '🌦️' },
+    55: { label: 'Heavy Drizzle', icon: '🌧️' },
+    61: { label: 'Light Rain',    icon: '🌧️' },
+    63: { label: 'Rain',          icon: '🌧️' },
+    65: { label: 'Heavy Rain',    icon: '🌧️' },
+    71: { label: 'Light Snow',    icon: '🌨️' },
+    73: { label: 'Snow',          icon: '❄️' },
+    75: { label: 'Heavy Snow',    icon: '❄️' },
+    80: { label: 'Rain Showers',  icon: '🌦️' },
+    81: { label: 'Showers',       icon: '🌧️' },
+    82: { label: 'Heavy Showers', icon: '⛈️' },
+    95: { label: 'Thunderstorm',  icon: '⛈️' },
+    99: { label: 'Severe Storm',  icon: '🌩️' },
   };
 
-  async function fetchWeather() {
-    const url =
-      'https://api.open-meteo.com/v1/forecast' +
-      '?latitude=17.3850&longitude=78.4867' +
-      '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code' +
-      '&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Asia/Kolkata';
+  function updateUI(temp, humidity, wind, wmo, cityName) {
+    // Hero card
+    document.getElementById('lw-temp').textContent     = temp;
+    document.getElementById('lw-desc').textContent     = `${wmo.icon}  ${wmo.label}`;
+    document.getElementById('lw-humidity').textContent = `💧 ${humidity}%`;
+    document.getElementById('lw-wind').textContent     = `💨 ${wind} km/h`;
+    document.getElementById('lw-loading').style.display = 'none';
+    document.getElementById('lw-content').style.display = 'block';
 
-    try {
-      const res  = await fetch(url);
-      const data = await res.json();
-      const cur  = data.current;
+    // Update city name in hero card
+    const locEl = document.getElementById('lw-location-name');
+    if (locEl) locEl.textContent = cityName;
 
-      const temp     = Math.round(cur.temperature_2m);
-      const humidity = cur.relative_humidity_2m;
-      const wind     = Math.round(cur.wind_speed_10m);
-      const code     = cur.weather_code;
-      const wmo      = WMO_CODES[code] || { label: 'Unknown', icon: '🌡️' };
-
-      // ── Populate hero card (desktop)
-      document.getElementById('lw-temp').textContent     = temp;
-      document.getElementById('lw-desc').textContent     = `${wmo.icon}  ${wmo.label}`;
-      document.getElementById('lw-humidity').textContent = `💧 ${humidity}%`;
-      document.getElementById('lw-wind').textContent     = `💨 ${wind} km/h`;
-      document.getElementById('lw-loading').style.display = 'none';
-      document.getElementById('lw-content').style.display = 'block';
-
-      // ── Populate floating badge (all screens)
-      const badge = document.getElementById('weather-badge');
-      document.getElementById('wb-icon').textContent = wmo.icon;
-      document.getElementById('wb-temp').textContent = `${temp}°C`;
-      badge.setAttribute('aria-label', `Live weather in Hyderabad: ${temp}°C, ${wmo.label}`);
-      badge.classList.remove('loading');
-
-    } catch (_) {
-      document.getElementById('lw-loading').textContent = '— unavailable';
-      const badge = document.getElementById('weather-badge');
-      if (badge) { badge.classList.remove('loading'); document.getElementById('wb-temp').textContent = '--°C'; }
-    }
+    // Floating badge
+    const badge = document.getElementById('weather-badge');
+    document.getElementById('wb-icon').textContent = wmo.icon;
+    document.getElementById('wb-temp').textContent = `${temp}°C`;
+    document.getElementById('wb-city').textContent = cityName;
+    badge.setAttribute('aria-label', `Live weather in ${cityName}: ${temp}°C, ${wmo.label}`);
+    badge.classList.remove('loading');
   }
 
-  fetchWeather();
-  // Refresh every 10 minutes
-  setInterval(fetchWeather, 10 * 60 * 1000);
+  async function fetchWeatherByCoords(lat, lon, cityName) {
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code` +
+      `&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    const cur  = data.current;
+    const temp     = Math.round(cur.temperature_2m);
+    const humidity = cur.relative_humidity_2m;
+    const wind     = Math.round(cur.wind_speed_10m);
+    const wmo      = WMO_CODES[cur.weather_code] || { label: 'Unknown', icon: '🌡️' };
+    updateUI(temp, humidity, wind, wmo, cityName);
+  }
+
+  async function reverseGeocode(lat, lon) {
+    // Nominatim — free, no key, returns city name
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+    const res  = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    const data = await res.json();
+    return (
+      data.address?.city ||
+      data.address?.town ||
+      data.address?.village ||
+      data.address?.county ||
+      'Your City'
+    );
+  }
+
+  async function detectAndFetch() {
+    if (!navigator.geolocation) {
+      // Fallback: Hyderabad
+      await fetchWeatherByCoords(17.3850, 78.4867, 'Hyderabad');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        try {
+          const city = await reverseGeocode(lat, lon);
+          await fetchWeatherByCoords(lat, lon, city);
+        } catch (_) {
+          await fetchWeatherByCoords(lat, lon, 'Your City');
+        }
+      },
+      async () => {
+        // Permission denied or error — fallback to IP-based location
+        try {
+          const res  = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
+          const data = await res.json();
+          const city = data.city || 'Hyderabad';
+          await fetchWeatherByCoords(data.latitude || 17.385, data.longitude || 78.4867, city);
+        } catch (_) {
+          await fetchWeatherByCoords(17.3850, 78.4867, 'Hyderabad');
+        }
+      },
+      { timeout: 6000, maximumAge: 600000 }
+    );
+  }
+
+  detectAndFetch();
+  // Refresh temperature every 10 minutes
+  setInterval(detectAndFetch, 10 * 60 * 1000);
 })();
+
 
 // Nav active link on scroll
 const sections = document.querySelectorAll('section[id]');
@@ -2107,5 +2379,28 @@ window.addEventListener('scroll', () => {
   });
 })();
 </script>
+<!-- Floating WhatsApp + Call icons -->
+<div id="fab-wrap" aria-label="Quick contact">
+  <a href="https://wa.me/919177519795?text=Hi%20Sai%20Charan%2C%20I%20saw%20your%20portfolio%20and%20would%20love%20to%20connect!"
+     class="fab-btn fab-wa"
+     target="_blank"
+     rel="noopener noreferrer"
+     data-tip="WhatsApp"
+     aria-label="Chat on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12 2C6.477 2 2 6.477 2 12c0 1.73.443 3.357 1.219 4.773L2 22l5.39-1.198A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.521 2 12 2zm0 18a7.952 7.952 0 01-4.437-1.342l-.319-.19-3.197.71.726-3.112-.208-.333A7.957 7.957 0 014 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.58 8-8 8z"/>
+    </svg>
+  </a>
+  <a href="tel:+919177519795"
+     class="fab-btn fab-call"
+     data-tip="+91 91775 19795"
+     aria-label="Call Sai Charan">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+    </svg>
+  </a>
+</div>
+
 </body>
 </html>
